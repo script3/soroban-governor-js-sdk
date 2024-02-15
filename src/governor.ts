@@ -1,23 +1,12 @@
-import { ContractSpec, Address } from "@stellar/stellar-sdk";
+import {
+  ContractSpec,
+  Address,
+  Contract,
+  Operation,
+  xdr,
+} from "@stellar/stellar-sdk";
 import { Buffer } from "buffer";
-import { AssembledTransaction, Ok, Err } from "./assembled-tx.js";
-import type {
-  u32,
-  i32,
-  u64,
-  i64,
-  u128,
-  i128,
-  u256,
-  i256,
-  Option,
-  Typepoint,
-  Duration,
-  Error_,
-  Result,
-} from "./assembled-tx.js";
-import type { ClassOptions, XDR_BASE64 } from "./method-options.js";
-import { Errors } from "./index.js";
+import type { u32, u64, i128, Option } from "./index.js";
 
 if (typeof window !== "undefined") {
   //@ts-ignore Buffer exists
@@ -221,7 +210,8 @@ export enum ProposalStatus {
 
 export class GovernorClient {
   spec: ContractSpec;
-  constructor(public readonly options: ClassOptions) {
+  contract: Contract;
+  constructor(contract_id: string) {
     this.spec = new ContractSpec([
       "AAAAAAAAAAAAAAAKaW5pdGlhbGl6ZQAAAAAAAgAAAAAAAAAFdm90ZXMAAAAAAAATAAAAAAAAAAhzZXR0aW5ncwAAB9AAAAAQR292ZXJub3JTZXR0aW5ncwAAAAA=",
       "AAAAAAAAAAAAAAAIc2V0dGluZ3MAAAAAAAAAAQAAB9AAAAAQR292ZXJub3JTZXR0aW5ncw==",
@@ -245,304 +235,236 @@ export class GovernorClient {
       "AAAAAQAAAAAAAAAAAAAACVZvdGVDb3VudAAAAAAAAAMAAAAAAAAAD3ZvdGVzX2Fic3RhaW5lZAAAAAALAAAAAAAAAA12b3Rlc19hZ2FpbnN0AAAAAAAACwAAAAAAAAAJdm90ZXNfZm9yAAAAAAAACw==",
       "AAAAAwAAAAAAAAAAAAAADlByb3Bvc2FsU3RhdHVzAAAAAAAHAAAAAAAAAAdQZW5kaW5nAAAAAAAAAAAAAAAABkFjdGl2ZQAAAAAAAQAAAAAAAAAIRGVmZWF0ZWQAAAACAAAAAAAAAAZRdWV1ZWQAAAAAAAMAAAAAAAAAB0V4cGlyZWQAAAAABAAAAAAAAAAIRXhlY3V0ZWQAAAAFAAAAAAAAAAhDYW5jZWxlZAAAAAY=",
     ]);
+    this.contract = new Contract(contract_id);
   }
   private readonly parsers = {
     initialize: () => {},
-    settings: (result: XDR_BASE64): GovernorSettings =>
+    settings: (result: string): GovernorSettings =>
       this.spec.funcResToNative("settings", result),
-    propose: (result: XDR_BASE64): u32 =>
+    propose: (result: string): u32 =>
       this.spec.funcResToNative("propose", result),
-    getProposal: (result: XDR_BASE64): Option<Proposal> =>
+    getProposal: (result: string): Option<Proposal> =>
       this.spec.funcResToNative("get_proposal", result),
     close: () => {},
     execute: () => {},
     cancel: () => {},
     vote: () => {},
-    getVote: (result: XDR_BASE64): Option<u32> =>
+    getVote: (result: string): Option<u32> =>
       this.spec.funcResToNative("get_vote", result),
-    getProposalVotes: (result: XDR_BASE64): VoteCount =>
+    getProposalVotes: (result: string): VoteCount =>
       this.spec.funcResToNative("get_proposal_votes", result),
   };
-  private txFromJSON = <T>(json: string): AssembledTransaction<T> => {
-    const { method, ...tx } = JSON.parse(json);
-    return AssembledTransaction.fromJSON(
-      {
-        ...this.options,
-        method,
-        parseResultXdr: this.parsers[method],
-      },
-      tx
-    );
-  };
-  public readonly fromJSON = {
-    initialize: this.txFromJSON<
-      ReturnType<(typeof this.parsers)["initialize"]>
-    >,
-    settings: this.txFromJSON<ReturnType<(typeof this.parsers)["settings"]>>,
-    propose: this.txFromJSON<ReturnType<(typeof this.parsers)["propose"]>>,
-    getProposal: this.txFromJSON<
-      ReturnType<(typeof this.parsers)["getProposal"]>
-    >,
-    close: this.txFromJSON<ReturnType<(typeof this.parsers)["close"]>>,
-    execute: this.txFromJSON<ReturnType<(typeof this.parsers)["execute"]>>,
-    cancel: this.txFromJSON<ReturnType<(typeof this.parsers)["cancel"]>>,
-    vote: this.txFromJSON<ReturnType<(typeof this.parsers)["vote"]>>,
-    getVote: this.txFromJSON<ReturnType<(typeof this.parsers)["getVote"]>>,
-    getProposalVotes: this.txFromJSON<
-      ReturnType<(typeof this.parsers)["getProposalVotes"]>
-    >,
-  };
+
   /**
    * Construct and simulate a initialize transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
    */
-  initialize = async (
-    { votes, settings }: { votes: string; settings: GovernorSettings },
-    options: {
-      /**
-       * The fee to pay for the transaction. Default: 100.
-       */
-      fee?: number;
-    } = {}
-  ) => {
-    return await AssembledTransaction.fromSimulation({
-      method: "initialize",
-      args: this.spec.funcArgsToScVals("initialize", {
-        votes: new Address(votes),
-        settings,
-      }),
-      ...options,
-      ...this.options,
-      errorTypes: Errors,
-      parseResultXdr: this.parsers["initialize"],
-    });
-  };
+  initialize({
+    votes,
+    settings,
+  }: {
+    votes: string;
+    settings: GovernorSettings;
+  }): {
+    op: xdr.Operation<Operation.InvokeHostFunction>;
+    parser: (result: string | xdr.ScVal) => void;
+  } {
+    return {
+      op: this.contract.call(
+        "initialize",
+        ...this.spec.funcArgsToScVals("initialize", {
+          votes: new Address(votes),
+          settings,
+        })
+      ),
+      parser: this.parsers["initialize"],
+    };
+  }
 
   /**
    * Construct and simulate a settings transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
    */
-  settings = async (
-    options: {
-      /**
-       * The fee to pay for the transaction. Default: 100.
-       */
-      fee?: number;
-    } = {}
-  ) => {
-    return await AssembledTransaction.fromSimulation({
-      method: "settings",
-      args: this.spec.funcArgsToScVals("settings", {}),
-      ...options,
-      ...this.options,
-      errorTypes: Errors,
-      parseResultXdr: this.parsers["settings"],
-    });
-  };
+  settings(): {
+    op: xdr.Operation<Operation.InvokeHostFunction>;
+    parser: (result: string | xdr.ScVal) => void;
+  } {
+    return {
+      op: this.contract.call(
+        "settings",
+        ...this.spec.funcArgsToScVals("settings", {})
+      ),
+      parser: this.parsers["settings"],
+    };
+  }
 
   /**
    * Construct and simulate a propose transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
    */
-  propose = async (
-    {
-      creator,
-      calldata,
-      sub_calldata,
-      title,
-      description,
-    }: {
-      creator: string;
-      calldata: Calldata;
-      sub_calldata: Array<SubCalldata>;
-      title: string;
-      description: string;
-    },
-    options: {
-      /**
-       * The fee to pay for the transaction. Default: 100.
-       */
-      fee?: number;
-    } = {}
-  ) => {
-    return await AssembledTransaction.fromSimulation({
-      method: "propose",
-      args: this.spec.funcArgsToScVals("propose", {
-        creator: new Address(creator),
-        calldata,
-        sub_calldata,
-        title,
-        description,
-      }),
-      ...options,
-      ...this.options,
-      errorTypes: Errors,
-      parseResultXdr: this.parsers["propose"],
-    });
-  };
+  propose({
+    creator,
+    calldata,
+    sub_calldata,
+    title,
+    description,
+  }: {
+    creator: string;
+    calldata: Calldata;
+    sub_calldata: Array<SubCalldata>;
+    title: string;
+    description: string;
+  }): {
+    op: xdr.Operation<Operation.InvokeHostFunction>;
+    parser: (result: string | xdr.ScVal) => void;
+  } {
+    return {
+      op: this.contract.call(
+        "propose",
+        ...this.spec.funcArgsToScVals("propose", {
+          creator: new Address(creator),
+          calldata,
+          sub_calldata,
+          title,
+          description,
+        })
+      ),
+      parser: this.parsers["propose"],
+    };
+  }
 
   /**
    * Construct and simulate a get_proposal transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
    */
-  getProposal = async (
-    { proposal_id }: { proposal_id: u32 },
-    options: {
-      /**
-       * The fee to pay for the transaction. Default: 100.
-       */
-      fee?: number;
-    } = {}
-  ) => {
-    return await AssembledTransaction.fromSimulation({
-      method: "get_proposal",
-      args: this.spec.funcArgsToScVals("get_proposal", { proposal_id }),
-      ...options,
-      ...this.options,
-      errorTypes: Errors,
-      parseResultXdr: this.parsers["getProposal"],
-    });
-  };
+  getProposal({ proposal_id }: { proposal_id: u32 }): {
+    op: xdr.Operation<Operation.InvokeHostFunction>;
+    parser: (result: string | xdr.ScVal) => void;
+  } {
+    return {
+      op: this.contract.call(
+        "get_proposal",
+        ...this.spec.funcArgsToScVals("get_proposal", {
+          proposal_id,
+        })
+      ),
+      parser: this.parsers["getProposal"],
+    };
+  }
 
   /**
    * Construct and simulate a close transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
    */
-  close = async (
-    { proposal_id }: { proposal_id: u32 },
-    options: {
-      /**
-       * The fee to pay for the transaction. Default: 100.
-       */
-      fee?: number;
-    } = {}
-  ) => {
-    return await AssembledTransaction.fromSimulation({
-      method: "close",
-      args: this.spec.funcArgsToScVals("close", { proposal_id }),
-      ...options,
-      ...this.options,
-      errorTypes: Errors,
-      parseResultXdr: this.parsers["close"],
-    });
-  };
+  close({ proposal_id }: { proposal_id: u32 }): {
+    op: xdr.Operation<Operation.InvokeHostFunction>;
+    parser: (result: string | xdr.ScVal) => void;
+  } {
+    return {
+      op: this.contract.call(
+        "close",
+        ...this.spec.funcArgsToScVals("close", {
+          proposal_id,
+        })
+      ),
+      parser: this.parsers["close"],
+    };
+  }
 
   /**
    * Construct and simulate a execute transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
    */
-  execute = async (
-    { proposal_id }: { proposal_id: u32 },
-    options: {
-      /**
-       * The fee to pay for the transaction. Default: 100.
-       */
-      fee?: number;
-    } = {}
-  ) => {
-    return await AssembledTransaction.fromSimulation({
-      method: "execute",
-      args: this.spec.funcArgsToScVals("execute", { proposal_id }),
-      ...options,
-      ...this.options,
-      errorTypes: Errors,
-      parseResultXdr: this.parsers["execute"],
-    });
-  };
+  execute({ proposal_id }: { proposal_id: u32 }): {
+    op: xdr.Operation<Operation.InvokeHostFunction>;
+    parser: (result: string | xdr.ScVal) => void;
+  } {
+    return {
+      op: this.contract.call(
+        "execute",
+        ...this.spec.funcArgsToScVals("execute", {
+          proposal_id,
+        })
+      ),
+      parser: this.parsers["execute"],
+    };
+  }
 
   /**
    * Construct and simulate a cancel transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
    */
-  cancel = async (
-    { creator, proposal_id }: { creator: string; proposal_id: u32 },
-    options: {
-      /**
-       * The fee to pay for the transaction. Default: 100.
-       */
-      fee?: number;
-    } = {}
-  ) => {
-    return await AssembledTransaction.fromSimulation({
-      method: "cancel",
-      args: this.spec.funcArgsToScVals("cancel", {
-        creator: new Address(creator),
-        proposal_id,
-      }),
-      ...options,
-      ...this.options,
-      errorTypes: Errors,
-      parseResultXdr: this.parsers["cancel"],
-    });
-  };
+  cancel({ creator, proposal_id }: { creator: string; proposal_id: u32 }): {
+    op: xdr.Operation<Operation.InvokeHostFunction>;
+    parser: (result: string | xdr.ScVal) => void;
+  } {
+    return {
+      op: this.contract.call(
+        "cancel",
+        ...this.spec.funcArgsToScVals("cancel", {
+          creator: new Address(creator),
+          proposal_id,
+        })
+      ),
+      parser: this.parsers["cancel"],
+    };
+  }
 
   /**
    * Construct and simulate a vote transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
    */
-  vote = async (
-    {
-      voter,
-      proposal_id,
-      support,
-    }: { voter: string; proposal_id: u32; support: u32 },
-    options: {
-      /**
-       * The fee to pay for the transaction. Default: 100.
-       */
-      fee?: number;
-    } = {}
-  ) => {
-    return await AssembledTransaction.fromSimulation({
-      method: "vote",
-      args: this.spec.funcArgsToScVals("vote", {
-        voter: new Address(voter),
-        proposal_id,
-        support,
-      }),
-      ...options,
-      ...this.options,
-      errorTypes: Errors,
-      parseResultXdr: this.parsers["vote"],
-    });
-  };
+  vote({
+    voter,
+    proposal_id,
+    support,
+  }: {
+    voter: string;
+    proposal_id: u32;
+    support: u32;
+  }): {
+    op: xdr.Operation<Operation.InvokeHostFunction>;
+    parser: (result: string | xdr.ScVal) => void;
+  } {
+    return {
+      op: this.contract.call(
+        "vote",
+        ...this.spec.funcArgsToScVals("vote", {
+          voter: new Address(voter),
+          proposal_id,
+          support,
+        })
+      ),
+      parser: this.parsers["vote"],
+    };
+  }
 
   /**
    * Construct and simulate a get_vote transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
    */
-  getVote = async (
-    { voter, proposal_id }: { voter: string; proposal_id: u32 },
-    options: {
-      /**
-       * The fee to pay for the transaction. Default: 100.
-       */
-      fee?: number;
-    } = {}
-  ) => {
-    return await AssembledTransaction.fromSimulation({
-      method: "get_vote",
-      args: this.spec.funcArgsToScVals("get_vote", {
-        voter: new Address(voter),
-        proposal_id,
-      }),
-      ...options,
-      ...this.options,
-      errorTypes: Errors,
-      parseResultXdr: this.parsers["getVote"],
-    });
-  };
+  getVote({ voter, proposal_id }: { voter: string; proposal_id: u32 }): {
+    op: xdr.Operation<Operation.InvokeHostFunction>;
+    parser: (result: string | xdr.ScVal) => void;
+  } {
+    return {
+      op: this.contract.call(
+        "get_vote",
+        ...this.spec.funcArgsToScVals("get_vote", {
+          voter: new Address(voter),
+          proposal_id,
+        })
+      ),
+      parser: this.parsers["getVote"],
+    };
+  }
 
   /**
    * Construct and simulate a get_proposal_votes transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
    */
-  getProposalVotes = async (
-    { proposal_id }: { proposal_id: u32 },
-    options: {
-      /**
-       * The fee to pay for the transaction. Default: 100.
-       */
-      fee?: number;
-    } = {}
-  ) => {
-    return await AssembledTransaction.fromSimulation({
-      method: "get_proposal_votes",
-      args: this.spec.funcArgsToScVals("get_proposal_votes", { proposal_id }),
-      ...options,
-      ...this.options,
-      errorTypes: Errors,
-      parseResultXdr: this.parsers["getProposalVotes"],
-    });
-  };
+  getProposalVotes({ proposal_id }: { proposal_id: u32 }): {
+    op: xdr.Operation<Operation.InvokeHostFunction>;
+    parser: (result: string | xdr.ScVal) => void;
+  } {
+    return {
+      op: this.contract.call(
+        "get_proposal_votes",
+        ...this.spec.funcArgsToScVals("get_proposal_votes", {
+          proposal_id,
+        })
+      ),
+      parser: this.parsers["getProposalVotes"],
+    };
+  }
 }

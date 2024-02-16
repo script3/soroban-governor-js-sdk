@@ -256,7 +256,10 @@ export class GovernorClient {
   };
 
   /**
-   * Construct and simulate a initialize transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Constructs an initialize operation
+   * @param votes - The address of the votes contract
+   * @param settings - The governor settings for managing proposals
+   * @returns An object containing the operation and a parser for the result
    */
   initialize({
     votes,
@@ -281,7 +284,8 @@ export class GovernorClient {
   }
 
   /**
-   * Construct and simulate a settings transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Construct a settings operation. (READ ONLY: Operation should only be simulated)
+   * @returns An object containing the operation and a parser for the result
    */
   settings(): {
     op: xdr.Operation<Operation.InvokeHostFunction>;
@@ -297,7 +301,13 @@ export class GovernorClient {
   }
 
   /**
-   * Construct and simulate a propose transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Contructs a propose operation
+   * @param creator - The address of the creator
+   * @param calldata - The call data for the proposal
+   * @param sub_calldata - The pre-auth call data for the proposal
+   * @param title - The title of the proposal
+   * @param description - The description of the proposal
+   * @returns An object containing the operation and a parser for the result
    */
   propose({
     creator,
@@ -331,7 +341,9 @@ export class GovernorClient {
   }
 
   /**
-   * Construct and simulate a get_proposal transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Contructs a getProposal operation (READ ONLY: Operation should only be simulated)
+   * @param proposal_id - The id of the proposal
+   * @returns An object containing the operation and a parser for the result
    */
   getProposal({ proposal_id }: { proposal_id: u32 }): {
     op: xdr.Operation<Operation.InvokeHostFunction>;
@@ -349,7 +361,9 @@ export class GovernorClient {
   }
 
   /**
-   * Construct and simulate a close transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Construct a close operation
+   * @param proposal_id - The id of the proposal
+   * @returns An object containing the operation and a parser for the result
    */
   close({ proposal_id }: { proposal_id: u32 }): {
     op: xdr.Operation<Operation.InvokeHostFunction>;
@@ -367,7 +381,9 @@ export class GovernorClient {
   }
 
   /**
-   * Construct and simulate a execute transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Construct a execute operation
+   * @param proposal_id - The id of the proposal
+   * @returns An object containing the operation and a parser for the result
    */
   execute({ proposal_id }: { proposal_id: u32 }): {
     op: xdr.Operation<Operation.InvokeHostFunction>;
@@ -385,7 +401,10 @@ export class GovernorClient {
   }
 
   /**
-   * Construct and simulate a cancel transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Construct a cancel operation
+   * @param creator - The address of the creator
+   * @param proposal_id - The id of the proposal
+   * @returns An object containing the operation and a parser for the result
    */
   cancel({ creator, proposal_id }: { creator: string; proposal_id: u32 }): {
     op: xdr.Operation<Operation.InvokeHostFunction>;
@@ -404,7 +423,11 @@ export class GovernorClient {
   }
 
   /**
-   * Construct and simulate a vote transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Construct a vote operation
+   * @param voter - The address of the voter
+   * @param proposal_id - The id of the proposal
+   * @param support - The vote
+   * @returns An object containing the operation and a parser for the result
    */
   vote({
     voter,
@@ -432,7 +455,10 @@ export class GovernorClient {
   }
 
   /**
-   * Construct and simulate a get_vote transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Construct a getVote operation (READ ONLY: Operation should only be simulated)
+   * @param voter - The address of the voter
+   * @param proposal_id - The id of the proposal
+   * @returns An object containing the operation and a parser for the result
    */
   getVote({ voter, proposal_id }: { voter: string; proposal_id: u32 }): {
     op: xdr.Operation<Operation.InvokeHostFunction>;
@@ -451,7 +477,9 @@ export class GovernorClient {
   }
 
   /**
-   * Construct and simulate a get_proposal_votes transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Construct a getProposalVotes operation (READ ONLY: Operation should only be simulated)
+   * @param proposal_id - The id of the proposal
+   * @returns An object containing the operation and a parser for the result
    */
   getProposalVotes({ proposal_id }: { proposal_id: u32 }): {
     op: xdr.Operation<Operation.InvokeHostFunction>;

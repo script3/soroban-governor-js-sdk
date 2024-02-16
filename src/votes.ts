@@ -148,7 +148,10 @@ export class VotesClient {
   };
 
   /**
-   * Construct and simulate a allowance transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Constructs an allowance operation
+   * @param from The address of the owner of the tokens
+   * @param spender The address of the spender
+   * @returns An object containing the operation and a parser for the result
    */
   allowance({ from, spender }: { from: string; spender: string }): {
     op: xdr.Operation<Operation.InvokeHostFunction>;
@@ -167,7 +170,12 @@ export class VotesClient {
   }
 
   /**
-   * Construct and simulate a approve transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Constructs an approve operation
+   * @param from The address of the owner of the tokens
+   * @param spender The address of the spender
+   * @param amount The amount of tokens to approve
+   * @param expiration_ledger The expiration ledger
+   * @returns An object containing the operation and a parser for the result
    */
   approve({
     from,
@@ -198,7 +206,9 @@ export class VotesClient {
   }
 
   /**
-   * Construct and simulate a balance transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Constructs a balance operation
+   * @param id The address of the account
+   * @returns An object containing the operation and a parser for the result
    */
   balance({ id }: { id: string }): {
     op: xdr.Operation<Operation.InvokeHostFunction>;
@@ -206,17 +216,21 @@ export class VotesClient {
   } {
     return {
       op: this.contract.call(
-        "approve",
-        ...this.spec.funcArgsToScVals("approve", {
+        "balance",
+        ...this.spec.funcArgsToScVals("balance", {
           id: new Address(id),
         })
       ),
-      parser: this.parsers["approve"],
+      parser: this.parsers["balance"],
     };
   }
 
   /**
-   * Construct and simulate a transfer transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Constructs a transfer operation
+   * @param from The address of the sender
+   * @param to The address of the recipient
+   * @param amount The amount of tokens to transfer
+   * @returns An object containing the operation and a parser for the result
    */
   transfer({ from, to, amount }: { from: string; to: string; amount: i128 }): {
     op: xdr.Operation<Operation.InvokeHostFunction>;
@@ -236,7 +250,12 @@ export class VotesClient {
   }
 
   /**
-   * Construct and simulate a transfer_from transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Constructs a transfer_from operation
+   * @param spender The address of the spender
+   * @param from The address of the sender
+   * @param to The address of the recipient
+   * @param amount The amount of tokens to transfer
+   * @returns An object containing the operation and a parser for the result
    */
   transferFrom({
     spender,
@@ -267,7 +286,10 @@ export class VotesClient {
   }
 
   /**
-   * Construct and simulate a burn transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Constructs a burn operation
+   * @param from The address of the account
+   * @param amount The amount of tokens to burn
+   * @returns An object containing the operation and a parser for the result
    */
   burn({ from, amount }: { from: string; amount: i128 }): {
     op: xdr.Operation<Operation.InvokeHostFunction>;
@@ -286,7 +308,11 @@ export class VotesClient {
   }
 
   /**
-   * Construct and simulate a burn_from transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Constructs a burn_from operation
+   * @param spender The address of the spender
+   * @param from The address of the account
+   * @param amount The amount of tokens to burn
+   * @returns An object containing the operation and a parser for the result
    */
   burnFrom({
     spender,
@@ -314,7 +340,8 @@ export class VotesClient {
   }
 
   /**
-   * Construct and simulate a decimals transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Constructs a decimals operation (READ ONLY: Operation should only be simulated)
+   * @returns An object containing the operation and a parser for the result
    */
   decimals(): {
     op: xdr.Operation<Operation.InvokeHostFunction>;
@@ -330,7 +357,8 @@ export class VotesClient {
   }
 
   /**
-   * Construct and simulate a name transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Constructs a name operation (READ ONLY: Operation should only be simulated)
+   * @returns An object containing the operation and a parser for the result
    */
   name(): {
     op: xdr.Operation<Operation.InvokeHostFunction>;
@@ -343,7 +371,8 @@ export class VotesClient {
   }
 
   /**
-   * Construct and simulate a symbol transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Constructs a symbol operation (READ ONLY: Operation should only be simulated)
+   * @returns An object containing the operation and a parser for the result
    */
   symbol(): {
     op: xdr.Operation<Operation.InvokeHostFunction>;
@@ -359,7 +388,9 @@ export class VotesClient {
   }
 
   /**
-   * Construct and simulate a initialize transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Constructs an initialize operation
+   * @param token The address of the voting token
+   * @returns An object containing the operation and a parser for the result
    */
   initialize({ token }: { token: string }): {
     op: xdr.Operation<Operation.InvokeHostFunction>;
@@ -377,7 +408,8 @@ export class VotesClient {
   }
 
   /**
-   * Construct and simulate a total_supply transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Constructs a total_supply operation (READ ONLY: Operation should only be simulated)
+   * @returns An object containing the operation and a parser for the result
    */
   totalSupply(): {
     op: xdr.Operation<Operation.InvokeHostFunction>;
@@ -393,7 +425,9 @@ export class VotesClient {
   }
 
   /**
-   * Construct and simulate a get_past_total_supply transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Constructs a get_past_total_supply operation (READ ONLY: Operation should only be simulated)
+   * @param timestamp The timestamp
+   * @returns An object containing the operation and a parser for the result
    */
   getPastTotalSupply({ timestamp }: { timestamp: u64 }): {
     op: xdr.Operation<Operation.InvokeHostFunction>;
@@ -411,7 +445,9 @@ export class VotesClient {
   }
 
   /**
-   * Construct and simulate a get_votes transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Constructs a get_votes operation (READ ONLY: Operation should only be simulated)
+   * @param account The address of the account
+   * @returns An object containing the operation and a parser for the result
    */
   getVotes({ account }: { account: string }): {
     op: xdr.Operation<Operation.InvokeHostFunction>;
@@ -429,7 +465,10 @@ export class VotesClient {
   }
 
   /**
-   * Construct and simulate a get_past_votes transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Constructs a get_past_votes operation (READ ONLY: Operation should only be simulated)
+   * @param user The address of the user
+   * @param timestamp The timestamp
+   * @returns An object containing the operation and a parser for the result
    */
   getPastVotes({ user, timestamp }: { user: string; timestamp: u64 }): {
     op: xdr.Operation<Operation.InvokeHostFunction>;
@@ -448,7 +487,9 @@ export class VotesClient {
   }
 
   /**
-   * Construct and simulate a get_delegate transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Constructs a get_delegate operation (READ ONLY: Operation should only be simulated)
+   * @param account The address of the account
+   * @returns An object containing the operation and a parser for the result
    */
   getDelegate({ account }: { account: string }): {
     op: xdr.Operation<Operation.InvokeHostFunction>;
@@ -466,7 +507,10 @@ export class VotesClient {
   }
 
   /**
-   * Construct and simulate a delegate transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Constructs a delegate operation
+   * @param account The address of the account delgating the votes
+   * @param delegatee The address of the delegatee
+   * @returns An object containing the operation and a parser for the result
    */
   delegate({ account, delegatee }: { account: string; delegatee: string }): {
     op: xdr.Operation<Operation.InvokeHostFunction>;
@@ -485,7 +529,10 @@ export class VotesClient {
   }
 
   /**
-   * Construct and simulate a deposit_for transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Constructs a deposit_for operation
+   * @param from The address of the account
+   * @param amount The amount of tokens to deposit
+   * @returns An object containing the operation and a parser for the result
    */
   depositFor({ from, amount }: { from: string; amount: i128 }): {
     op: xdr.Operation<Operation.InvokeHostFunction>;
@@ -504,7 +551,10 @@ export class VotesClient {
   }
 
   /**
-   * Construct and simulate a withdraw_to transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Constructs a withdraw_to operation
+   * @param from The address of the account
+   * @param amount The amount of tokens to withdraw
+   * @returns An object containing the operation and a parser for the result
    */
   withdrawTo({ from, amount }: { from: string; amount: i128 }): {
     op: xdr.Operation<Operation.InvokeHostFunction>;

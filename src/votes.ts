@@ -390,9 +390,10 @@ export class VotesClient {
   /**
    * Constructs an initialize operation
    * @param token The address of the voting token
+   * @param governor The address of the governor
    * @returns An object containing the operation and a parser for the result
    */
-  initialize({ token }: { token: string }): {
+  initialize({ token, governor }: { token: string; governor: string }): {
     op: xdr.Operation<Operation.InvokeHostFunction>;
     parser: (result: string | xdr.ScVal) => void;
   } {
@@ -401,6 +402,7 @@ export class VotesClient {
         "initialize",
         ...this.spec.funcArgsToScVals("initialize", {
           token: new Address(token),
+          governor: new Address(governor),
         })
       ),
       parser: this.parsers["initialize"],
@@ -426,10 +428,10 @@ export class VotesClient {
 
   /**
    * Constructs a get_past_total_supply operation (READ ONLY: Operation should only be simulated)
-   * @param timestamp The timestamp
+   * @param sequence The sequence number
    * @returns An object containing the operation and a parser for the result
    */
-  getPastTotalSupply({ timestamp }: { timestamp: u64 }): {
+  getPastTotalSupply({ sequence }: { sequence: u32 }): {
     op: xdr.Operation<Operation.InvokeHostFunction>;
     parser: (result: string | xdr.ScVal) => void;
   } {
@@ -437,7 +439,7 @@ export class VotesClient {
       op: this.contract.call(
         "get_past_total_supply",
         ...this.spec.funcArgsToScVals("get_past_total_supply", {
-          timestamp,
+          sequence,
         })
       ),
       parser: this.parsers["getPastTotalSupply"],
@@ -467,10 +469,10 @@ export class VotesClient {
   /**
    * Constructs a get_past_votes operation (READ ONLY: Operation should only be simulated)
    * @param user The address of the user
-   * @param timestamp The timestamp
+   * @param sequence The sequence number
    * @returns An object containing the operation and a parser for the result
    */
-  getPastVotes({ user, timestamp }: { user: string; timestamp: u64 }): {
+  getPastVotes({ user, sequence }: { user: string; sequence: u32 }): {
     op: xdr.Operation<Operation.InvokeHostFunction>;
     parser: (result: string | xdr.ScVal) => void;
   } {
@@ -479,7 +481,7 @@ export class VotesClient {
         "get_past_votes",
         ...this.spec.funcArgsToScVals("get_past_votes", {
           user: new Address(user),
-          timestamp,
+          sequence,
         })
       ),
       parser: this.parsers["getPastVotes"],

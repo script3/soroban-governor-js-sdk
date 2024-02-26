@@ -57,18 +57,18 @@ export interface GovernorSettings {
     */
   quorum: u32;
   /**
-    The time (in seconds) the proposal will have to wait between vote period closing and execution.
+    The number of ledgers the proposal will have to wait between vote period closing and execution.
     */
-  timelock: u64;
+  timelock: u32;
   /**
-    The delay (in seconds) from the proposal creation to when the voting period begins. The voting
+    The delay (in ledgers) from the proposal creation to when the voting period begins. The voting
     * period start time will be the checkpoint used to account for all votes for the proposal.
     */
-  vote_delay: u64;
+  vote_delay: u32;
   /**
-    The time (in seconds) the proposal will be open to vote against.
+    The number of ledgers the proposal will be open to vote against.
     */
-  vote_period: u64;
+  vote_period: u32;
   /**
     The percentage of votes "yes" (expressed in BPS) needed to consider a vote successful.
     */

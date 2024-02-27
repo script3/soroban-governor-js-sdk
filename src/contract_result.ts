@@ -125,7 +125,7 @@ export class ContractResult<T> {
     simulation: SorobanRpc.Api.SimulateTransactionResponse,
     hash: string,
     resources: Resources,
-    parser: (xdr: string | xdr.ScVal) => T
+    parser: (xdr: string) => T
   ): ContractResult<T> {
     let result = new ContractResult<T>();
     result.hash = hash;
@@ -148,7 +148,7 @@ export class ContractResult<T> {
           )
         );
       } else {
-        result.result = new Ok(parser(simulation.result.retval));
+        result.result = new Ok(parser(simulation.result.retval!.toXDR()));
       }
     }
     return result;
@@ -158,7 +158,7 @@ export class ContractResult<T> {
     response: SorobanRpc.Api.GetTransactionResponse,
     hash: string,
     resources: Resources,
-    parser: (xdr: string | xdr.ScVal) => T
+    parser: (xdr: string) => T
   ): ContractResult<T> {
     let result = new ContractResult<T>();
     result.hash = hash;
@@ -166,7 +166,7 @@ export class ContractResult<T> {
     if (response.status === SorobanRpc.Api.GetTransactionStatus.SUCCESS) {
       // getTransactionResponse has a `returnValue` field unless it failed
       if ("returnValue" in response) {
-        result.result = new Ok(parser(response.returnValue!));
+        result.result = new Ok(parser(response.returnValue!.toXDR()));
       }
       // if "returnValue" not present, the transaction failed; return without parsing the result
       result.result = new Ok(undefined as T);

@@ -2,7 +2,6 @@ export * from "./governor.js";
 export * from "./votes.js";
 export * from "./contract_result.js";
 export * from "./contract_error.js";
-export { nativeToScVal } from "@stellar/stellar-sdk";
 export type u32 = number;
 export type i32 = number;
 export type u64 = bigint;

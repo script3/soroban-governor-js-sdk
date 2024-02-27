@@ -1,6 +1,13 @@
-import { ContractSpec, Address, Contract } from "@stellar/stellar-sdk";
+import {
+  ContractSpec,
+  Address,
+  Contract,
+  nativeToScVal,
+  xdr,
+} from "@stellar/stellar-sdk";
 import { Buffer } from "buffer";
 import type { u32, u64, i128, Option } from "./index.js";
+import { argsToScVals } from "./helper.js";
 
 if (typeof window !== "undefined") {
   //@ts-ignore Buffer exists
@@ -69,6 +76,15 @@ export interface GovernorSettings {
   vote_threshold: u32;
 }
 
+/** This is a wrapper for the stellar SDK's nativeToScVal function
+ * `value` is the value to convert
+ * `type` is the type of the value to convert to
+ */
+export type Arg = {
+  value: string;
+  type: string;
+};
+
 /**
     Object for storing call data
     */
@@ -76,7 +92,7 @@ export interface Calldata {
   /**
     
     */
-  args: Array<any>;
+  args: Array<Arg>;
   /**
     
     */
@@ -87,6 +103,21 @@ export interface Calldata {
   function: string;
 }
 
+export interface InternalCalldata {
+  /**
+    
+    */
+  args: Array<xdr.ScVal>;
+  /**
+      
+      */
+  contract_id: string;
+  /**
+      
+      */
+  function: string;
+}
+
 /**
     Object for storing Pre-auth call data
     */
@@ -94,7 +125,7 @@ export interface SubCalldata {
   /**
     
     */
-  args: Array<any>;
+  args: Array<Arg>;
   /**
     
     */
@@ -107,6 +138,25 @@ export interface SubCalldata {
     
     */
   sub_auth: Array<SubCalldata>;
+}
+
+export interface InternalSubCalldata {
+  /**
+    
+    */
+  args: Array<xdr.ScVal>;
+  /**
+      
+      */
+  contract_id: string;
+  /**
+      
+      */
+  function: string;
+  /**
+      
+      */
+  sub_auth: Array<InternalCalldata>;
 }
 
 /**
@@ -294,17 +344,28 @@ export class GovernorClient {
    */
   propose({
     creator,
-    calldata,
-    sub_calldata,
+    calldata_,
+    sub_calldata_,
     title,
     description,
   }: {
     creator: string;
-    calldata: Calldata;
-    sub_calldata: Array<SubCalldata>;
+    calldata_: Calldata;
+    sub_calldata_: SubCalldata[];
     title: string;
     description: string;
   }): string {
+    let calldata: InternalCalldata = {
+      args: calldata_.args.map((arg) =>
+        nativeToScVal(arg.value, { type: arg.type })
+      ),
+      contract_id: calldata_.contract_id,
+      function: calldata_.function,
+    };
+    let sub_calldata: InternalSubCalldata[] = sub_calldata_.map((data) => {
+      return argsToScVals(data);
+    });
+
     return this.contract
       .call(
         "propose",

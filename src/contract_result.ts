@@ -12,15 +12,13 @@ export interface Result<T, E extends ContractError> {
   isErr(): boolean;
 }
 
-export class Ok<T, E extends ContractError = ContractError>
-  implements Result<T, E>
-{
+export class Ok<T, E extends ContractError> implements Result<T, E> {
   constructor(readonly value: T) {}
   unwrapErr(): E {
     throw new Error("No error");
   }
   unwrap(): T {
-    return this.value;
+    return this.value as T;
   }
 
   isOk(): boolean {
@@ -125,7 +123,7 @@ export class ContractResult<T> {
     simulation: SorobanRpc.Api.SimulateTransactionResponse,
     hash: string,
     resources: Resources,
-    parser: (xdr: string | xdr.ScVal) => T
+    parser: (xdr: string) => T
   ): ContractResult<T> {
     let result = new ContractResult<T>();
     result.hash = hash;
@@ -148,7 +146,9 @@ export class ContractResult<T> {
           )
         );
       } else {
-        result.result = new Ok(parser(simulation.result.retval));
+        result.result = new Ok(
+          parser(simulation.result.retval!.toXDR("base64"))
+        );
       }
     }
     return result;
@@ -158,7 +158,7 @@ export class ContractResult<T> {
     response: SorobanRpc.Api.GetTransactionResponse,
     hash: string,
     resources: Resources,
-    parser: (xdr: string | xdr.ScVal) => T
+    parser: (xdr: string) => T
   ): ContractResult<T> {
     let result = new ContractResult<T>();
     result.hash = hash;
@@ -166,10 +166,12 @@ export class ContractResult<T> {
     if (response.status === SorobanRpc.Api.GetTransactionStatus.SUCCESS) {
       // getTransactionResponse has a `returnValue` field unless it failed
       if ("returnValue" in response) {
-        result.result = new Ok(parser(response.returnValue!));
+        result.result = new Ok(parser(response.returnValue!.toXDR("base64")));
       }
       // if "returnValue" not present, the transaction failed; return without parsing the result
-      result.result = new Ok(undefined as T);
+      else {
+        result.result = new Ok(undefined as T);
+      }
     } else if (
       response.status === SorobanRpc.Api.GetTransactionStatus.NOT_FOUND
     ) {

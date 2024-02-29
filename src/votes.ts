@@ -1,10 +1,4 @@
-import {
-  ContractSpec,
-  Address,
-  Contract,
-  xdr,
-  Operation,
-} from "@stellar/stellar-sdk";
+import { ContractSpec, Address, Contract } from "@stellar/stellar-sdk";
 import { Buffer } from "buffer";
 import type { u32, u64, i128 } from "./index.js";
 
@@ -98,25 +92,25 @@ export class VotesClient {
       "AAAAAAAAAAAAAAAIZGVjaW1hbHMAAAAAAAAAAQAAAAQ=",
       "AAAAAAAAAAAAAAAEbmFtZQAAAAAAAAABAAAAEA==",
       "AAAAAAAAAAAAAAAGc3ltYm9sAAAAAAAAAAAAAQAAABA=",
-      "AAAAAAAAAAAAAAAKaW5pdGlhbGl6ZQAAAAAAAQAAAAAAAAAFdG9rZW4AAAAAAAATAAAAAA==",
+      "AAAAAAAAAAAAAAAKaW5pdGlhbGl6ZQAAAAAAAgAAAAAAAAAFdG9rZW4AAAAAAAATAAAAAAAAAAhnb3Zlcm5vcgAAABMAAAAA",
       "AAAAAAAAAAAAAAAMdG90YWxfc3VwcGx5AAAAAAAAAAEAAAAL",
-      "AAAAAAAAAAAAAAAVZ2V0X3Bhc3RfdG90YWxfc3VwcGx5AAAAAAAAAQAAAAAAAAAJdGltZXN0YW1wAAAAAAAABgAAAAEAAAAL",
+      "AAAAAAAAAAAAAAARc2V0X3ZvdGVfc2VxdWVuY2UAAAAAAAABAAAAAAAAAAhzZXF1ZW5jZQAAAAQAAAAA",
+      "AAAAAAAAAAAAAAAVZ2V0X3Bhc3RfdG90YWxfc3VwcGx5AAAAAAAAAQAAAAAAAAAIc2VxdWVuY2UAAAAEAAAAAQAAAAs=",
       "AAAAAAAAAAAAAAAJZ2V0X3ZvdGVzAAAAAAAAAQAAAAAAAAAHYWNjb3VudAAAAAATAAAAAQAAAAs=",
-      "AAAAAAAAAAAAAAAOZ2V0X3Bhc3Rfdm90ZXMAAAAAAAIAAAAAAAAABHVzZXIAAAATAAAAAAAAAAl0aW1lc3RhbXAAAAAAAAAGAAAAAQAAAAs=",
+      "AAAAAAAAAAAAAAAOZ2V0X3Bhc3Rfdm90ZXMAAAAAAAIAAAAAAAAABHVzZXIAAAATAAAAAAAAAAhzZXF1ZW5jZQAAAAQAAAABAAAACw==",
       "AAAAAAAAAAAAAAAMZ2V0X2RlbGVnYXRlAAAAAQAAAAAAAAAHYWNjb3VudAAAAAATAAAAAQAAABM=",
       "AAAAAAAAAAAAAAAIZGVsZWdhdGUAAAACAAAAAAAAAAdhY2NvdW50AAAAABMAAAAAAAAACWRlbGVnYXRlZQAAAAAAABMAAAAA",
       "AAAAAAAAAAAAAAALZGVwb3NpdF9mb3IAAAAAAgAAAAAAAAAEZnJvbQAAABMAAAAAAAAABmFtb3VudAAAAAAACwAAAAA=",
       "AAAAAAAAAAAAAAALd2l0aGRyYXdfdG8AAAAAAgAAAAAAAAAEZnJvbQAAABMAAAAAAAAABmFtb3VudAAAAAAACwAAAAA=",
-      "AAAABAAAACFUaGUgZXJyb3IgY29kZXMgZm9yIHRoZSBjb250cmFjdC4AAAAAAAAAAAAAD1Rva2VuVm90ZXNFcnJvcgAAAAAJAAAAAAAAAA1JbnRlcm5hbEVycm9yAAAAAAAAAQAAAAAAAAAXQWxyZWFkeUluaXRpYWxpemVkRXJyb3IAAAAAAwAAAAAAAAARVW5hdXRob3JpemVkRXJyb3IAAAAAAAAEAAAAAAAAABNOZWdhdGl2ZUFtb3VudEVycm9yAAAAAAgAAAAAAAAADkFsbG93YW5jZUVycm9yAAAAAAAJAAAAAAAAAAxCYWxhbmNlRXJyb3IAAAAKAAAAAAAAAA1PdmVyZmxvd0Vycm9yAAAAAAAADAAAAAAAAAAWSW5zdWZmaWNpZW50Vm90ZXNFcnJvcgAAAAAAZAAAAAAAAAAVSW52YWxpZERlbGVnYXRlZUVycm9yAAAAAAAAZQ==",
+      "AAAABAAAACFUaGUgZXJyb3IgY29kZXMgZm9yIHRoZSBjb250cmFjdC4AAAAAAAAAAAAAD1Rva2VuVm90ZXNFcnJvcgAAAAALAAAAAAAAAA1JbnRlcm5hbEVycm9yAAAAAAAAAQAAAAAAAAAXQWxyZWFkeUluaXRpYWxpemVkRXJyb3IAAAAAAwAAAAAAAAARVW5hdXRob3JpemVkRXJyb3IAAAAAAAAEAAAAAAAAABNOZWdhdGl2ZUFtb3VudEVycm9yAAAAAAgAAAAAAAAADkFsbG93YW5jZUVycm9yAAAAAAAJAAAAAAAAAAxCYWxhbmNlRXJyb3IAAAAKAAAAAAAAAA1PdmVyZmxvd0Vycm9yAAAAAAAADAAAAAAAAAAWSW5zdWZmaWNpZW50Vm90ZXNFcnJvcgAAAAAAZAAAAAAAAAAVSW52YWxpZERlbGVnYXRlZUVycm9yAAAAAAAAZQAAAAAAAAAWSW52YWxpZENoZWNrcG9pbnRFcnJvcgAAAAAAZgAAAAAAAAAWU2VxdWVuY2VOb3RDbG9zZWRFcnJvcgAAAAAAZw==",
       "AAAAAQAAAAAAAAAAAAAAEEFsbG93YW5jZURhdGFLZXkAAAACAAAAAAAAAARmcm9tAAAAEwAAAAAAAAAHc3BlbmRlcgAAAAAT",
       "AAAAAQAAAAAAAAAAAAAADkFsbG93YW5jZVZhbHVlAAAAAAACAAAAAAAAAAZhbW91bnQAAAAAAAsAAAAAAAAAEWV4cGlyYXRpb25fbGVkZ2VyAAAAAAAABA==",
       "AAAAAgAAAAAAAAAAAAAAB0RhdGFLZXkAAAAABQAAAAEAAAAAAAAACUFsbG93YW5jZQAAAAAAAAEAAAfQAAAAEEFsbG93YW5jZURhdGFLZXkAAAABAAAAAAAAAAdCYWxhbmNlAAAAAAEAAAATAAAAAQAAAAAAAAAFVm90ZXMAAAAAAAABAAAAEwAAAAEAAAAAAAAAClZvdGVzQ2hlY2sAAAAAAAEAAAATAAAAAQAAAAAAAAAIRGVsZWdhdGUAAAABAAAAEw==",
       "AAAAAQAAAAAAAAAAAAAADVRva2VuTWV0YWRhdGEAAAAAAAADAAAAAAAAAAdkZWNpbWFsAAAAAAQAAAAAAAAABG5hbWUAAAAQAAAAAAAAAAZzeW1ib2wAAAAAABA=",
-      "AAAAAQAAAAAAAAAAAAAAC1ZvdGluZ1VuaXRzAAAAAAIAAAAdVGhlIG51bWJlciBvZiB2b3RlcyBhdmFpbGFibGUAAAAAAAAGYW1vdW50AAAAAAALAAAAKVRoZSB0aW1lc3RhbXAgd2hlbiB0aGUgdm90aW5nIHVuaXRzIHZhbGlkAAAAAAAACXRpbWVzdGFtcAAAAAAAAAY=",
     ]);
     this.contract = new Contract(contract_id);
   }
-  private readonly parsers = {
+  readonly parsers = {
     allowance: (result: string): i128 =>
       this.spec.funcResToNative("allowance", result),
     approve: () => {},
@@ -153,20 +147,16 @@ export class VotesClient {
    * @param spender The address of the spender
    * @returns An object containing the operation and a parser for the result
    */
-  allowance({ from, spender }: { from: string; spender: string }): {
-    op: xdr.Operation<Operation.InvokeHostFunction>;
-    parser: (result: string | xdr.ScVal) => void;
-  } {
-    return {
-      op: this.contract.call(
+  allowance({ from, spender }: { from: string; spender: string }): string {
+    return this.contract
+      .call(
         "allowance",
         ...this.spec.funcArgsToScVals("allowance", {
           from: new Address(from),
           spender: new Address(spender),
         })
-      ),
-      parser: this.parsers["allowance"],
-    };
+      )
+      .toXDR();
   }
 
   /**
@@ -187,12 +177,9 @@ export class VotesClient {
     spender: string;
     amount: i128;
     expiration_ledger: u32;
-  }): {
-    op: xdr.Operation<Operation.InvokeHostFunction>;
-    parser: (result: string | xdr.ScVal) => void;
-  } {
-    return {
-      op: this.contract.call(
+  }): string {
+    return this.contract
+      .call(
         "approve",
         ...this.spec.funcArgsToScVals("approve", {
           from: new Address(from),
@@ -200,9 +187,8 @@ export class VotesClient {
           amount,
           expiration_ledger,
         })
-      ),
-      parser: this.parsers["approve"],
-    };
+      )
+      .toXDR();
   }
 
   /**
@@ -210,19 +196,15 @@ export class VotesClient {
    * @param id The address of the account
    * @returns An object containing the operation and a parser for the result
    */
-  balance({ id }: { id: string }): {
-    op: xdr.Operation<Operation.InvokeHostFunction>;
-    parser: (result: string | xdr.ScVal) => void;
-  } {
-    return {
-      op: this.contract.call(
+  balance({ id }: { id: string }): string {
+    return this.contract
+      .call(
         "balance",
         ...this.spec.funcArgsToScVals("balance", {
           id: new Address(id),
         })
-      ),
-      parser: this.parsers["balance"],
-    };
+      )
+      .toXDR();
   }
 
   /**
@@ -232,21 +214,25 @@ export class VotesClient {
    * @param amount The amount of tokens to transfer
    * @returns An object containing the operation and a parser for the result
    */
-  transfer({ from, to, amount }: { from: string; to: string; amount: i128 }): {
-    op: xdr.Operation<Operation.InvokeHostFunction>;
-    parser: (result: string | xdr.ScVal) => void;
-  } {
-    return {
-      op: this.contract.call(
+  transfer({
+    from,
+    to,
+    amount,
+  }: {
+    from: string;
+    to: string;
+    amount: i128;
+  }): string {
+    return this.contract
+      .call(
         "transfer",
         ...this.spec.funcArgsToScVals("transfer", {
           from: new Address(from),
           to: new Address(to),
           amount,
         })
-      ),
-      parser: this.parsers["transfer"],
-    };
+      )
+      .toXDR();
   }
 
   /**
@@ -267,12 +253,9 @@ export class VotesClient {
     from: string;
     to: string;
     amount: i128;
-  }): {
-    op: xdr.Operation<Operation.InvokeHostFunction>;
-    parser: (result: string | xdr.ScVal) => void;
-  } {
-    return {
-      op: this.contract.call(
+  }): string {
+    return this.contract
+      .call(
         "transfer_from",
         ...this.spec.funcArgsToScVals("transfer_from", {
           spender: new Address(spender),
@@ -280,9 +263,8 @@ export class VotesClient {
           to: new Address(to),
           amount,
         })
-      ),
-      parser: this.parsers["transferFrom"],
-    };
+      )
+      .toXDR();
   }
 
   /**
@@ -291,20 +273,16 @@ export class VotesClient {
    * @param amount The amount of tokens to burn
    * @returns An object containing the operation and a parser for the result
    */
-  burn({ from, amount }: { from: string; amount: i128 }): {
-    op: xdr.Operation<Operation.InvokeHostFunction>;
-    parser: (result: string | xdr.ScVal) => void;
-  } {
-    return {
-      op: this.contract.call(
+  burn({ from, amount }: { from: string; amount: i128 }): string {
+    return this.contract
+      .call(
         "burn",
         ...this.spec.funcArgsToScVals("burn", {
           from: new Address(from),
           amount,
         })
-      ),
-      parser: this.parsers["burn"],
-    };
+      )
+      .toXDR();
   }
 
   /**
@@ -322,69 +300,47 @@ export class VotesClient {
     spender: string;
     from: string;
     amount: i128;
-  }): {
-    op: xdr.Operation<Operation.InvokeHostFunction>;
-    parser: (result: string | xdr.ScVal) => void;
-  } {
-    return {
-      op: this.contract.call(
+  }): string {
+    return this.contract
+      .call(
         "burn_from",
         ...this.spec.funcArgsToScVals("burn_from", {
           from: new Address(from),
           spender: new Address(spender),
           amount,
         })
-      ),
-      parser: this.parsers["burnFrom"],
-    };
+      )
+      .toXDR();
   }
 
   /**
    * Constructs a decimals operation (READ ONLY: Operation should only be simulated)
    * @returns An object containing the operation and a parser for the result
    */
-  decimals(): {
-    op: xdr.Operation<Operation.InvokeHostFunction>;
-    parser: (result: string | xdr.ScVal) => void;
-  } {
-    return {
-      op: this.contract.call(
-        "decimals",
-        ...this.spec.funcArgsToScVals("decimals", {})
-      ),
-      parser: this.parsers["decimals"],
-    };
+  decimals(): string {
+    return this.contract
+      .call("decimals", ...this.spec.funcArgsToScVals("decimals", {}))
+      .toXDR();
   }
 
   /**
    * Constructs a name operation (READ ONLY: Operation should only be simulated)
    * @returns An object containing the operation and a parser for the result
    */
-  name(): {
-    op: xdr.Operation<Operation.InvokeHostFunction>;
-    parser: (result: string | xdr.ScVal) => void;
-  } {
-    return {
-      op: this.contract.call("name", ...this.spec.funcArgsToScVals("name", {})),
-      parser: this.parsers["name"],
-    };
+  name(): string {
+    return this.contract
+      .call("name", ...this.spec.funcArgsToScVals("name", {}))
+      .toXDR();
   }
 
   /**
    * Constructs a symbol operation (READ ONLY: Operation should only be simulated)
    * @returns An object containing the operation and a parser for the result
    */
-  symbol(): {
-    op: xdr.Operation<Operation.InvokeHostFunction>;
-    parser: (result: string | xdr.ScVal) => void;
-  } {
-    return {
-      op: this.contract.call(
-        "symbol",
-        ...this.spec.funcArgsToScVals("symbol", {})
-      ),
-      parser: this.parsers["symbol"],
-    };
+  symbol(): string {
+    return this.contract
+      .call("symbol", ...this.spec.funcArgsToScVals("symbol", {}))
+      .toXDR();
   }
 
   /**
@@ -393,37 +349,26 @@ export class VotesClient {
    * @param governor The address of the governor
    * @returns An object containing the operation and a parser for the result
    */
-  initialize({ token, governor }: { token: string; governor: string }): {
-    op: xdr.Operation<Operation.InvokeHostFunction>;
-    parser: (result: string | xdr.ScVal) => void;
-  } {
-    return {
-      op: this.contract.call(
+  initialize({ token, governor }: { token: string; governor: string }): string {
+    return this.contract
+      .call(
         "initialize",
         ...this.spec.funcArgsToScVals("initialize", {
           token: new Address(token),
           governor: new Address(governor),
         })
-      ),
-      parser: this.parsers["initialize"],
-    };
+      )
+      .toXDR();
   }
 
   /**
    * Constructs a total_supply operation (READ ONLY: Operation should only be simulated)
    * @returns An object containing the operation and a parser for the result
    */
-  totalSupply(): {
-    op: xdr.Operation<Operation.InvokeHostFunction>;
-    parser: (result: string | xdr.ScVal) => void;
-  } {
-    return {
-      op: this.contract.call(
-        "total_supply",
-        ...this.spec.funcArgsToScVals("total_supply", {})
-      ),
-      parser: this.parsers["totalSupply"],
-    };
+  totalSupply(): string {
+    return this.contract
+      .call("total_supply", ...this.spec.funcArgsToScVals("total_supply", {}))
+      .toXDR();
   }
 
   /**
@@ -431,19 +376,15 @@ export class VotesClient {
    * @param sequence The sequence number
    * @returns An object containing the operation and a parser for the result
    */
-  getPastTotalSupply({ sequence }: { sequence: u32 }): {
-    op: xdr.Operation<Operation.InvokeHostFunction>;
-    parser: (result: string | xdr.ScVal) => void;
-  } {
-    return {
-      op: this.contract.call(
+  getPastTotalSupply({ sequence }: { sequence: u32 }): string {
+    return this.contract
+      .call(
         "get_past_total_supply",
         ...this.spec.funcArgsToScVals("get_past_total_supply", {
           sequence,
         })
-      ),
-      parser: this.parsers["getPastTotalSupply"],
-    };
+      )
+      .toXDR();
   }
 
   /**
@@ -451,19 +392,15 @@ export class VotesClient {
    * @param account The address of the account
    * @returns An object containing the operation and a parser for the result
    */
-  getVotes({ account }: { account: string }): {
-    op: xdr.Operation<Operation.InvokeHostFunction>;
-    parser: (result: string | xdr.ScVal) => void;
-  } {
-    return {
-      op: this.contract.call(
+  getVotes({ account }: { account: string }): string {
+    return this.contract
+      .call(
         "get_votes",
         ...this.spec.funcArgsToScVals("get_votes", {
           account: new Address(account),
         })
-      ),
-      parser: this.parsers["getVotes"],
-    };
+      )
+      .toXDR();
   }
 
   /**
@@ -472,20 +409,16 @@ export class VotesClient {
    * @param sequence The sequence number
    * @returns An object containing the operation and a parser for the result
    */
-  getPastVotes({ user, sequence }: { user: string; sequence: u32 }): {
-    op: xdr.Operation<Operation.InvokeHostFunction>;
-    parser: (result: string | xdr.ScVal) => void;
-  } {
-    return {
-      op: this.contract.call(
+  getPastVotes({ user, sequence }: { user: string; sequence: u32 }): string {
+    return this.contract
+      .call(
         "get_past_votes",
         ...this.spec.funcArgsToScVals("get_past_votes", {
           user: new Address(user),
           sequence,
         })
-      ),
-      parser: this.parsers["getPastVotes"],
-    };
+      )
+      .toXDR();
   }
 
   /**
@@ -493,19 +426,15 @@ export class VotesClient {
    * @param account The address of the account
    * @returns An object containing the operation and a parser for the result
    */
-  getDelegate({ account }: { account: string }): {
-    op: xdr.Operation<Operation.InvokeHostFunction>;
-    parser: (result: string | xdr.ScVal) => void;
-  } {
-    return {
-      op: this.contract.call(
+  getDelegate({ account }: { account: string }): string {
+    return this.contract
+      .call(
         "get_delegate",
         ...this.spec.funcArgsToScVals("get_delegate", {
           account: new Address(account),
         })
-      ),
-      parser: this.parsers["getDelegate"],
-    };
+      )
+      .toXDR();
   }
 
   /**
@@ -514,20 +443,22 @@ export class VotesClient {
    * @param delegatee The address of the delegatee
    * @returns An object containing the operation and a parser for the result
    */
-  delegate({ account, delegatee }: { account: string; delegatee: string }): {
-    op: xdr.Operation<Operation.InvokeHostFunction>;
-    parser: (result: string | xdr.ScVal) => void;
-  } {
-    return {
-      op: this.contract.call(
+  delegate({
+    account,
+    delegatee,
+  }: {
+    account: string;
+    delegatee: string;
+  }): string {
+    return this.contract
+      .call(
         "delegate",
         ...this.spec.funcArgsToScVals("delegate", {
           account: new Address(account),
           delegatee: new Address(delegatee),
         })
-      ),
-      parser: this.parsers["delegate"],
-    };
+      )
+      .toXDR();
   }
 
   /**
@@ -536,20 +467,16 @@ export class VotesClient {
    * @param amount The amount of tokens to deposit
    * @returns An object containing the operation and a parser for the result
    */
-  depositFor({ from, amount }: { from: string; amount: i128 }): {
-    op: xdr.Operation<Operation.InvokeHostFunction>;
-    parser: (result: string | xdr.ScVal) => void;
-  } {
-    return {
-      op: this.contract.call(
+  depositFor({ from, amount }: { from: string; amount: i128 }): string {
+    return this.contract
+      .call(
         "deposit_for",
         ...this.spec.funcArgsToScVals("deposit_for", {
           from: new Address(from),
           amount,
         })
-      ),
-      parser: this.parsers["depositFor"],
-    };
+      )
+      .toXDR();
   }
 
   /**
@@ -558,19 +485,15 @@ export class VotesClient {
    * @param amount The amount of tokens to withdraw
    * @returns An object containing the operation and a parser for the result
    */
-  withdrawTo({ from, amount }: { from: string; amount: i128 }): {
-    op: xdr.Operation<Operation.InvokeHostFunction>;
-    parser: (result: string | xdr.ScVal) => void;
-  } {
-    return {
-      op: this.contract.call(
+  withdrawTo({ from, amount }: { from: string; amount: i128 }): string {
+    return this.contract
+      .call(
         "withdraw_to",
         ...this.spec.funcArgsToScVals("withdraw_to", {
           from: new Address(from),
           amount,
         })
-      ),
-      parser: this.parsers["withdrawTo"],
-    };
+      )
+      .toXDR();
   }
 }

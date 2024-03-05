@@ -156,7 +156,7 @@ export class VotesClient {
           spender: new Address(spender),
         })
       )
-      .toXDR();
+      .toXDR("base64");
   }
 
   /**
@@ -188,7 +188,7 @@ export class VotesClient {
           expiration_ledger,
         })
       )
-      .toXDR();
+      .toXDR("base64");
   }
 
   /**
@@ -204,7 +204,7 @@ export class VotesClient {
           id: new Address(id),
         })
       )
-      .toXDR();
+      .toXDR("base64");
   }
 
   /**
@@ -232,7 +232,7 @@ export class VotesClient {
           amount,
         })
       )
-      .toXDR();
+      .toXDR("base64");
   }
 
   /**
@@ -264,7 +264,7 @@ export class VotesClient {
           amount,
         })
       )
-      .toXDR();
+      .toXDR("base64");
   }
 
   /**
@@ -282,7 +282,7 @@ export class VotesClient {
           amount,
         })
       )
-      .toXDR();
+      .toXDR("base64");
   }
 
   /**
@@ -310,7 +310,7 @@ export class VotesClient {
           amount,
         })
       )
-      .toXDR();
+      .toXDR("base64");
   }
 
   /**
@@ -320,7 +320,7 @@ export class VotesClient {
   decimals(): string {
     return this.contract
       .call("decimals", ...this.spec.funcArgsToScVals("decimals", {}))
-      .toXDR();
+      .toXDR("base64");
   }
 
   /**
@@ -330,7 +330,7 @@ export class VotesClient {
   name(): string {
     return this.contract
       .call("name", ...this.spec.funcArgsToScVals("name", {}))
-      .toXDR();
+      .toXDR("base64");
   }
 
   /**
@@ -340,7 +340,7 @@ export class VotesClient {
   symbol(): string {
     return this.contract
       .call("symbol", ...this.spec.funcArgsToScVals("symbol", {}))
-      .toXDR();
+      .toXDR("base64");
   }
 
   /**
@@ -358,7 +358,7 @@ export class VotesClient {
           governor: new Address(governor),
         })
       )
-      .toXDR();
+      .toXDR("base64");
   }
 
   /**
@@ -368,7 +368,7 @@ export class VotesClient {
   totalSupply(): string {
     return this.contract
       .call("total_supply", ...this.spec.funcArgsToScVals("total_supply", {}))
-      .toXDR();
+      .toXDR("base64");
   }
 
   /**
@@ -384,7 +384,7 @@ export class VotesClient {
           sequence,
         })
       )
-      .toXDR();
+      .toXDR("base64");
   }
 
   /**
@@ -400,7 +400,7 @@ export class VotesClient {
           account: new Address(account),
         })
       )
-      .toXDR();
+      .toXDR("base64");
   }
 
   /**
@@ -418,7 +418,7 @@ export class VotesClient {
           sequence,
         })
       )
-      .toXDR();
+      .toXDR("base64");
   }
 
   /**
@@ -434,7 +434,7 @@ export class VotesClient {
           account: new Address(account),
         })
       )
-      .toXDR();
+      .toXDR("base64");
   }
 
   /**
@@ -458,7 +458,7 @@ export class VotesClient {
           delegatee: new Address(delegatee),
         })
       )
-      .toXDR();
+      .toXDR("base64");
   }
 
   /**
@@ -476,7 +476,7 @@ export class VotesClient {
           amount,
         })
       )
-      .toXDR();
+      .toXDR("base64");
   }
 
   /**
@@ -494,6 +494,6 @@ export class VotesClient {
           amount,
         })
       )
-      .toXDR();
+      .toXDR("base64");
   }
 }

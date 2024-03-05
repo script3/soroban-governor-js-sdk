@@ -320,7 +320,7 @@ export class GovernorClient {
           settings,
         })
       )
-      .toXDR();
+      .toXDR("base64");
   }
 
   /**
@@ -330,7 +330,7 @@ export class GovernorClient {
   settings(): string {
     return this.contract
       .call("settings", ...this.spec.funcArgsToScVals("settings", {}))
-      .toXDR();
+      .toXDR("base64");
   }
 
   /**
@@ -377,7 +377,7 @@ export class GovernorClient {
           description,
         })
       )
-      .toXDR();
+      .toXDR("base64");
   }
 
   /**
@@ -393,7 +393,7 @@ export class GovernorClient {
           proposal_id,
         })
       )
-      .toXDR();
+      .toXDR("base64");
   }
 
   /**
@@ -409,7 +409,7 @@ export class GovernorClient {
           proposal_id,
         })
       )
-      .toXDR();
+      .toXDR("base64");
   }
 
   /**
@@ -425,7 +425,7 @@ export class GovernorClient {
           proposal_id,
         })
       )
-      .toXDR();
+      .toXDR("base64");
   }
 
   /**
@@ -449,7 +449,7 @@ export class GovernorClient {
           proposal_id,
         })
       )
-      .toXDR();
+      .toXDR("base64");
   }
 
   /**
@@ -477,7 +477,7 @@ export class GovernorClient {
           support,
         })
       )
-      .toXDR();
+      .toXDR("base64");
   }
 
   /**
@@ -495,7 +495,7 @@ export class GovernorClient {
           proposal_id,
         })
       )
-      .toXDR();
+      .toXDR("base64");
   }
 
   /**
@@ -511,6 +511,6 @@ export class GovernorClient {
           proposal_id,
         })
       )
-      .toXDR();
+      .toXDR("base64");
   }
 }

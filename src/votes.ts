@@ -1,43 +1,42 @@
-import { ContractSpec, Address, Contract } from "@stellar/stellar-sdk";
-import { Buffer } from "buffer";
-import type { u32, u64, i128 } from "./index.js";
-
-if (typeof window !== "undefined") {
-  //@ts-ignore Buffer exists
-  window.Buffer = window.Buffer || Buffer;
-}
+import { Address, Contract, ContractSpec } from "@stellar/stellar-sdk";
+import type { i128, u32, u64 } from "./index.js";
 
 /**
-    
-    */
+ * The error codes for the Votes contract.
+ */
+export const VotesErrors = {
+  1: { message: "InternalError" },
+  3: { message: "AlreadyInitializedError" },
+  4: { message: "UnauthorizedError" },
+  8: { message: "NegativeAmountError" },
+  9: { message: "AllowanceError" },
+  10: { message: "BalanceError" },
+  12: { message: "OverflowError" },
+  100: { message: "InsufficientVotesError" },
+  101: { message: "InvalidDelegateeError" },
+  102: { message: "InvalidCheckpointError" },
+  103: { message: "SequenceNotClosedError" },
+};
+
+/**
+ * The data key for the allowance
+ */
 export interface AllowanceDataKey {
-  /**
-    
-    */
   from: string;
-  /**
-    
-    */
   spender: string;
 }
 
 /**
-    
-    */
+ * The value of the allowance
+ */
 export interface AllowanceValue {
-  /**
-    
-    */
   amount: i128;
-  /**
-    
-    */
   expiration_ledger: u32;
 }
 
 /**
-    
-    */
+ * The data key for the Votes contract
+ */
 export type DataKey =
   | { tag: "Allowance"; values: readonly [AllowanceDataKey] }
   | { tag: "Balance"; values: readonly [string] }
@@ -45,35 +44,20 @@ export type DataKey =
   | { tag: "VotesCheck"; values: readonly [string] }
   | { tag: "Delegate"; values: readonly [string] };
 
-/**
-    
-    */
 export interface TokenMetadata {
-  /**
-    
-    */
   decimal: u32;
-  /**
-    
-    */
   name: string;
-  /**
-    
-    */
   symbol: string;
 }
 
-/**
-    
-    */
 export interface VotingUnits {
   /**
-    The number of votes available
-    */
+   * The number of votes available
+   */
   amount: i128;
   /**
-    The timestamp when the voting units valid
-    */
+   * The timestamp when the voting units valid
+   */
   timestamp: u64;
 }
 
@@ -92,7 +76,6 @@ export class VotesClient {
       "AAAAAAAAAAAAAAAIZGVjaW1hbHMAAAAAAAAAAQAAAAQ=",
       "AAAAAAAAAAAAAAAEbmFtZQAAAAAAAAABAAAAEA==",
       "AAAAAAAAAAAAAAAGc3ltYm9sAAAAAAAAAAAAAQAAABA=",
-      "AAAAAAAAAAAAAAAKaW5pdGlhbGl6ZQAAAAAAAgAAAAAAAAAFdG9rZW4AAAAAAAATAAAAAAAAAAhnb3Zlcm5vcgAAABMAAAAA",
       "AAAAAAAAAAAAAAAMdG90YWxfc3VwcGx5AAAAAAAAAAEAAAAL",
       "AAAAAAAAAAAAAAARc2V0X3ZvdGVfc2VxdWVuY2UAAAAAAAABAAAAAAAAAAhzZXF1ZW5jZQAAAAQAAAAA",
       "AAAAAAAAAAAAAAAVZ2V0X3Bhc3RfdG90YWxfc3VwcGx5AAAAAAAAAQAAAAAAAAAIc2VxdWVuY2UAAAAEAAAAAQAAAAs=",
@@ -100,6 +83,10 @@ export class VotesClient {
       "AAAAAAAAAAAAAAAOZ2V0X3Bhc3Rfdm90ZXMAAAAAAAIAAAAAAAAABHVzZXIAAAATAAAAAAAAAAhzZXF1ZW5jZQAAAAQAAAABAAAACw==",
       "AAAAAAAAAAAAAAAMZ2V0X2RlbGVnYXRlAAAAAQAAAAAAAAAHYWNjb3VudAAAAAATAAAAAQAAABM=",
       "AAAAAAAAAAAAAAAIZGVsZWdhdGUAAAACAAAAAAAAAAdhY2NvdW50AAAAABMAAAAAAAAACWRlbGVnYXRlZQAAAAAAABMAAAAA",
+      "AAAAAAAAAAAAAAAEbWludAAAAAIAAAAAAAAAAnRvAAAAAAATAAAAAAAAAAZhbW91bnQAAAAAAAsAAAAA",
+      "AAAAAAAAAAAAAAAJc2V0X2FkbWluAAAAAAAAAQAAAAAAAAAJbmV3X2FkbWluAAAAAAAAEwAAAAA=",
+      "AAAAAAAAAAAAAAAFYWRtaW4AAAAAAAAAAAAAAQAAABM=",
+      "AAAAAAAAAAAAAAAKaW5pdGlhbGl6ZQAAAAAAAgAAAAAAAAAFdG9rZW4AAAAAAAATAAAAAAAAAAhnb3Zlcm5vcgAAABMAAAAA",
       "AAAAAAAAAAAAAAALZGVwb3NpdF9mb3IAAAAAAgAAAAAAAAAEZnJvbQAAABMAAAAAAAAABmFtb3VudAAAAAAACwAAAAA=",
       "AAAAAAAAAAAAAAALd2l0aGRyYXdfdG8AAAAAAgAAAAAAAAAEZnJvbQAAABMAAAAAAAAABmFtb3VudAAAAAAACwAAAAA=",
       "AAAABAAAACFUaGUgZXJyb3IgY29kZXMgZm9yIHRoZSBjb250cmFjdC4AAAAAAAAAAAAAD1Rva2VuVm90ZXNFcnJvcgAAAAALAAAAAAAAAA1JbnRlcm5hbEVycm9yAAAAAAAAAQAAAAAAAAAXQWxyZWFkeUluaXRpYWxpemVkRXJyb3IAAAAAAwAAAAAAAAARVW5hdXRob3JpemVkRXJyb3IAAAAAAAAEAAAAAAAAABNOZWdhdGl2ZUFtb3VudEVycm9yAAAAAAgAAAAAAAAADkFsbG93YW5jZUVycm9yAAAAAAAJAAAAAAAAAAxCYWxhbmNlRXJyb3IAAAAKAAAAAAAAAA1PdmVyZmxvd0Vycm9yAAAAAAAADAAAAAAAAAAWSW5zdWZmaWNpZW50Vm90ZXNFcnJvcgAAAAAAZAAAAAAAAAAVSW52YWxpZERlbGVnYXRlZUVycm9yAAAAAAAAZQAAAAAAAAAWSW52YWxpZENoZWNrcG9pbnRFcnJvcgAAAAAAZgAAAAAAAAAWU2VxdWVuY2VOb3RDbG9zZWRFcnJvcgAAAAAAZw==",

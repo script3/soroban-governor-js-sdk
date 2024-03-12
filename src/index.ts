@@ -1,7 +1,7 @@
+export * from "./contract_error.js";
+export * from "./contract_result.js";
 export * from "./governor.js";
 export * from "./votes.js";
-export * from "./contract_result.js";
-export * from "./contract_error.js";
 export type u32 = number;
 export type i32 = number;
 export type u64 = bigint;
@@ -13,3 +13,8 @@ export type i256 = bigint;
 export type Option<T> = T | undefined;
 export type Typepoint = bigint;
 export type Duration = bigint;
+
+if (typeof window !== "undefined") {
+  //@ts-ignore Buffer exists
+  window.Buffer = window.Buffer || Buffer;
+}

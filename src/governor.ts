@@ -271,7 +271,7 @@ export class GovernorClient {
    * Constructs an initialize operation
    * @param votes - The address of the votes contract
    * @param settings - The governor settings for managing proposals
-   * @returns An object containing the operation and a parser for the result
+   * @returns A base64 XDR string of the operation
    */
   initialize({
     votes,
@@ -293,7 +293,7 @@ export class GovernorClient {
 
   /**
    * Construct a settings operation. (READ ONLY: Operation should only be simulated)
-   * @returns An object containing the operation and a parser for the result
+   * @returns A base64 XDR string of the operation
    */
   settings(): string {
     return this.contract
@@ -307,7 +307,7 @@ export class GovernorClient {
    * @param title - The title of the proposal
    * @param description - The description of the proposal
    * @param action - The action to be taken by the proposal
-   * @returns An object containing the operation and a parser for the result
+   * @returns A base64 XDR string of the operation
    */
   propose({
     creator,
@@ -340,7 +340,7 @@ export class GovernorClient {
   /**
    * Contructs a getProposal operation (READ ONLY: Operation should only be simulated)
    * @param proposal_id - The id of the proposal
-   * @returns An object containing the operation and a parser for the result
+   * @returns A base64 XDR string of the operation
    */
   getProposal({ proposal_id }: { proposal_id: u32 }): string {
     return this.contract
@@ -356,7 +356,7 @@ export class GovernorClient {
   /**
    * Construct a close operation
    * @param proposal_id - The id of the proposal
-   * @returns An object containing the operation and a parser for the result
+   * @returns A base64 XDR string of the operation
    */
   close({ proposal_id }: { proposal_id: u32 }): string {
     return this.contract
@@ -372,7 +372,7 @@ export class GovernorClient {
   /**
    * Construct a execute operation
    * @param proposal_id - The id of the proposal
-   * @returns An object containing the operation and a parser for the result
+   * @returns A base64 XDR string of the operation
    */
   execute({ proposal_id }: { proposal_id: u32 }): string {
     return this.contract
@@ -389,7 +389,7 @@ export class GovernorClient {
    * Construct a cancel operation
    * @param creator - The address of the creator
    * @param proposal_id - The id of the proposal
-   * @returns An object containing the operation and a parser for the result
+   * @returns A base64 XDR string of the operation
    */
   cancel({
     creator,
@@ -414,7 +414,7 @@ export class GovernorClient {
    * @param voter - The address of the voter
    * @param proposal_id - The id of the proposal
    * @param support - The vote
-   * @returns An object containing the operation and a parser for the result
+   * @returns A base64 XDR string of the operation
    */
   vote({
     voter,
@@ -441,7 +441,7 @@ export class GovernorClient {
    * Construct a getVote operation (READ ONLY: Operation should only be simulated)
    * @param voter - The address of the voter
    * @param proposal_id - The id of the proposal
-   * @returns An object containing the operation and a parser for the result
+   * @returns A base64 XDR string of the operation
    */
   getVote({ voter, proposal_id }: { voter: string; proposal_id: u32 }): string {
     return this.contract
@@ -458,7 +458,7 @@ export class GovernorClient {
   /**
    * Construct a getProposalVotes operation (READ ONLY: Operation should only be simulated)
    * @param proposal_id - The id of the proposal
-   * @returns An object containing the operation and a parser for the result
+   * @returns A base64 XDR string of the operation
    */
   getProposalVotes({ proposal_id }: { proposal_id: u32 }): string {
     return this.contract

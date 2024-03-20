@@ -34,6 +34,23 @@ export interface AllowanceValue {
   expiration_ledger: u32;
 }
 
+export interface EmissionConfig {
+  eps: u64;
+  expiration: u64;
+}
+
+export interface EmissionData {
+  index: i128;
+  last_time: u64;
+}
+
+export interface UserEmissionData {
+  accrued: i128;
+  index: i128;
+}
+
+export type EmisKey = readonly [string];
+
 /**
  * The data key for the Votes contract
  */
@@ -89,11 +106,17 @@ export class VotesClient {
       "AAAAAAAAAAAAAAAKaW5pdGlhbGl6ZQAAAAAAAgAAAAAAAAAFdG9rZW4AAAAAAAATAAAAAAAAAAhnb3Zlcm5vcgAAABMAAAAA",
       "AAAAAAAAAAAAAAALZGVwb3NpdF9mb3IAAAAAAgAAAAAAAAAEZnJvbQAAABMAAAAAAAAABmFtb3VudAAAAAAACwAAAAA=",
       "AAAAAAAAAAAAAAALd2l0aGRyYXdfdG8AAAAAAgAAAAAAAAAEZnJvbQAAABMAAAAAAAAABmFtb3VudAAAAAAACwAAAAA=",
-      "AAAABAAAACFUaGUgZXJyb3IgY29kZXMgZm9yIHRoZSBjb250cmFjdC4AAAAAAAAAAAAAD1Rva2VuVm90ZXNFcnJvcgAAAAALAAAAAAAAAA1JbnRlcm5hbEVycm9yAAAAAAAAAQAAAAAAAAAXQWxyZWFkeUluaXRpYWxpemVkRXJyb3IAAAAAAwAAAAAAAAARVW5hdXRob3JpemVkRXJyb3IAAAAAAAAEAAAAAAAAABNOZWdhdGl2ZUFtb3VudEVycm9yAAAAAAgAAAAAAAAADkFsbG93YW5jZUVycm9yAAAAAAAJAAAAAAAAAAxCYWxhbmNlRXJyb3IAAAAKAAAAAAAAAA1PdmVyZmxvd0Vycm9yAAAAAAAADAAAAAAAAAAWSW5zdWZmaWNpZW50Vm90ZXNFcnJvcgAAAAAAZAAAAAAAAAAVSW52YWxpZERlbGVnYXRlZUVycm9yAAAAAAAAZQAAAAAAAAAWSW52YWxpZENoZWNrcG9pbnRFcnJvcgAAAAAAZgAAAAAAAAAWU2VxdWVuY2VOb3RDbG9zZWRFcnJvcgAAAAAAZw==",
+      "AAAAAAAAAAAAAAAFY2xhaW0AAAAAAAABAAAAAAAAAAdhZGRyZXNzAAAAABMAAAABAAAACw==",
+      "AAAAAAAAAAAAAAAIc2V0X2VtaXMAAAACAAAAAAAAAAZ0b2tlbnMAAAAAAAsAAAAAAAAACmV4cGlyYXRpb24AAAAAAAYAAAAA",
+      "AAAABAAAACFUaGUgZXJyb3IgY29kZXMgZm9yIHRoZSBjb250cmFjdC4AAAAAAAAAAAAAD1Rva2VuVm90ZXNFcnJvcgAAAAAMAAAAAAAAAA1JbnRlcm5hbEVycm9yAAAAAAAAAQAAAAAAAAAXQWxyZWFkeUluaXRpYWxpemVkRXJyb3IAAAAAAwAAAAAAAAARVW5hdXRob3JpemVkRXJyb3IAAAAAAAAEAAAAAAAAABNOZWdhdGl2ZUFtb3VudEVycm9yAAAAAAgAAAAAAAAADkFsbG93YW5jZUVycm9yAAAAAAAJAAAAAAAAAAxCYWxhbmNlRXJyb3IAAAAKAAAAAAAAAA1PdmVyZmxvd0Vycm9yAAAAAAAADAAAAAAAAAAWSW5zdWZmaWNpZW50Vm90ZXNFcnJvcgAAAAAAZAAAAAAAAAAVSW52YWxpZERlbGVnYXRlZUVycm9yAAAAAAAAZQAAAAAAAAAWSW52YWxpZENoZWNrcG9pbnRFcnJvcgAAAAAAZgAAAAAAAAAWU2VxdWVuY2VOb3RDbG9zZWRFcnJvcgAAAAAAZwAAAAAAAAAaSW52YWxpZEVtaXNzaW9uQ29uZmlnRXJyb3IAAAAAAGg=",
       "AAAAAQAAAAAAAAAAAAAAEEFsbG93YW5jZURhdGFLZXkAAAACAAAAAAAAAARmcm9tAAAAEwAAAAAAAAAHc3BlbmRlcgAAAAAT",
       "AAAAAQAAAAAAAAAAAAAADkFsbG93YW5jZVZhbHVlAAAAAAACAAAAAAAAAAZhbW91bnQAAAAAAAsAAAAAAAAAEWV4cGlyYXRpb25fbGVkZ2VyAAAAAAAABA==",
       "AAAAAgAAAAAAAAAAAAAAB0RhdGFLZXkAAAAABQAAAAEAAAAAAAAACUFsbG93YW5jZQAAAAAAAAEAAAfQAAAAEEFsbG93YW5jZURhdGFLZXkAAAABAAAAAAAAAAdCYWxhbmNlAAAAAAEAAAATAAAAAQAAAAAAAAAFVm90ZXMAAAAAAAABAAAAEwAAAAEAAAAAAAAAClZvdGVzQ2hlY2sAAAAAAAEAAAATAAAAAQAAAAAAAAAIRGVsZWdhdGUAAAABAAAAEw==",
+      "AAAAAQAAAAAAAAAAAAAAB0VtaXNLZXkAAAAAAQAAAAAAAAABMAAAAAAAABM=",
       "AAAAAQAAAAAAAAAAAAAADVRva2VuTWV0YWRhdGEAAAAAAAADAAAAAAAAAAdkZWNpbWFsAAAAAAQAAAAAAAAABG5hbWUAAAAQAAAAAAAAAAZzeW1ib2wAAAAAABA=",
+      "AAAAAQAAAAAAAAAAAAAADkVtaXNzaW9uQ29uZmlnAAAAAAACAAAAAAAAAANlcHMAAAAABgAAAAAAAAAKZXhwaXJhdGlvbgAAAAAABg==",
+      "AAAAAQAAAAAAAAAAAAAADEVtaXNzaW9uRGF0YQAAAAIAAAAAAAAABWluZGV4AAAAAAAACwAAAAAAAAAJbGFzdF90aW1lAAAAAAAABg==",
+      "AAAAAQAAAAAAAAAAAAAAEFVzZXJFbWlzc2lvbkRhdGEAAAACAAAAAAAAAAdhY2NydWVkAAAAAAsAAAAAAAAABWluZGV4AAAAAAAACw==",
     ]);
     this.contract = new Contract(contract_id);
   }
@@ -126,13 +149,15 @@ export class VotesClient {
     delegate: () => {},
     depositFor: () => {},
     withdrawTo: () => {},
+    claim: (result: string): i128 => this.spec.funcResToNative("claim", result),
+    setEmis: () => {},
   };
 
   /**
    * Constructs an allowance operation
    * @param from The address of the owner of the tokens
    * @param spender The address of the spender
-   * @returns An object containing the operation and a parser for the result
+   * @returns A base64 XDR string of the operation
    */
   allowance({ from, spender }: { from: string; spender: string }): string {
     return this.contract
@@ -152,7 +177,7 @@ export class VotesClient {
    * @param spender The address of the spender
    * @param amount The amount of tokens to approve
    * @param expiration_ledger The expiration ledger
-   * @returns An object containing the operation and a parser for the result
+   * @returns A base64 XDR string of the operation
    */
   approve({
     from,
@@ -181,7 +206,7 @@ export class VotesClient {
   /**
    * Constructs a balance operation
    * @param id The address of the account
-   * @returns An object containing the operation and a parser for the result
+   * @returns A base64 XDR string of the operation
    */
   balance({ id }: { id: string }): string {
     return this.contract
@@ -199,7 +224,7 @@ export class VotesClient {
    * @param from The address of the sender
    * @param to The address of the recipient
    * @param amount The amount of tokens to transfer
-   * @returns An object containing the operation and a parser for the result
+   * @returns A base64 XDR string of the operation
    */
   transfer({
     from,
@@ -228,7 +253,7 @@ export class VotesClient {
    * @param from The address of the sender
    * @param to The address of the recipient
    * @param amount The amount of tokens to transfer
-   * @returns An object containing the operation and a parser for the result
+   * @returns A base64 XDR string of the operation
    */
   transferFrom({
     spender,
@@ -258,7 +283,7 @@ export class VotesClient {
    * Constructs a burn operation
    * @param from The address of the account
    * @param amount The amount of tokens to burn
-   * @returns An object containing the operation and a parser for the result
+   * @returns A base64 XDR string of the operation
    */
   burn({ from, amount }: { from: string; amount: i128 }): string {
     return this.contract
@@ -277,7 +302,7 @@ export class VotesClient {
    * @param spender The address of the spender
    * @param from The address of the account
    * @param amount The amount of tokens to burn
-   * @returns An object containing the operation and a parser for the result
+   * @returns A base64 XDR string of the operation
    */
   burnFrom({
     spender,
@@ -302,7 +327,7 @@ export class VotesClient {
 
   /**
    * Constructs a decimals operation (READ ONLY: Operation should only be simulated)
-   * @returns An object containing the operation and a parser for the result
+   * @returns A base64 XDR string of the operation
    */
   decimals(): string {
     return this.contract
@@ -312,7 +337,7 @@ export class VotesClient {
 
   /**
    * Constructs a name operation (READ ONLY: Operation should only be simulated)
-   * @returns An object containing the operation and a parser for the result
+   * @returns A base64 XDR string of the operation
    */
   name(): string {
     return this.contract
@@ -322,7 +347,7 @@ export class VotesClient {
 
   /**
    * Constructs a symbol operation (READ ONLY: Operation should only be simulated)
-   * @returns An object containing the operation and a parser for the result
+   * @returns A base64 XDR string of the operation
    */
   symbol(): string {
     return this.contract
@@ -334,7 +359,7 @@ export class VotesClient {
    * Constructs an initialize operation
    * @param token The address of the voting token
    * @param governor The address of the governor
-   * @returns An object containing the operation and a parser for the result
+   * @returns A base64 XDR string of the operation
    */
   initialize({ token, governor }: { token: string; governor: string }): string {
     return this.contract
@@ -350,7 +375,7 @@ export class VotesClient {
 
   /**
    * Constructs a total_supply operation (READ ONLY: Operation should only be simulated)
-   * @returns An object containing the operation and a parser for the result
+   * @returns A base64 XDR string of the operation
    */
   totalSupply(): string {
     return this.contract
@@ -361,7 +386,7 @@ export class VotesClient {
   /**
    * Constructs a get_past_total_supply operation (READ ONLY: Operation should only be simulated)
    * @param sequence The sequence number
-   * @returns An object containing the operation and a parser for the result
+   * @returns A base64 XDR string of the operation
    */
   getPastTotalSupply({ sequence }: { sequence: u32 }): string {
     return this.contract
@@ -377,7 +402,7 @@ export class VotesClient {
   /**
    * Constructs a get_votes operation (READ ONLY: Operation should only be simulated)
    * @param account The address of the account
-   * @returns An object containing the operation and a parser for the result
+   * @returns A base64 XDR string of the operation
    */
   getVotes({ account }: { account: string }): string {
     return this.contract
@@ -394,7 +419,7 @@ export class VotesClient {
    * Constructs a get_past_votes operation (READ ONLY: Operation should only be simulated)
    * @param user The address of the user
    * @param sequence The sequence number
-   * @returns An object containing the operation and a parser for the result
+   * @returns A base64 XDR string of the operation
    */
   getPastVotes({ user, sequence }: { user: string; sequence: u32 }): string {
     return this.contract
@@ -411,7 +436,7 @@ export class VotesClient {
   /**
    * Constructs a get_delegate operation (READ ONLY: Operation should only be simulated)
    * @param account The address of the account
-   * @returns An object containing the operation and a parser for the result
+   * @returns A base64 XDR string of the operation
    */
   getDelegate({ account }: { account: string }): string {
     return this.contract
@@ -428,7 +453,7 @@ export class VotesClient {
    * Constructs a delegate operation
    * @param account The address of the account delgating the votes
    * @param delegatee The address of the delegatee
-   * @returns An object containing the operation and a parser for the result
+   * @returns A base64 XDR string of the operation
    */
   delegate({
     account,
@@ -452,7 +477,7 @@ export class VotesClient {
    * Constructs a deposit_for operation
    * @param from The address of the account
    * @param amount The amount of tokens to deposit
-   * @returns An object containing the operation and a parser for the result
+   * @returns A base64 XDR string of the operation
    */
   depositFor({ from, amount }: { from: string; amount: i128 }): string {
     return this.contract
@@ -470,7 +495,7 @@ export class VotesClient {
    * Constructs a withdraw_to operation
    * @param from The address of the account
    * @param amount The amount of tokens to withdraw
-   * @returns An object containing the operation and a parser for the result
+   * @returns A base64 XDR string of the operation
    */
   withdrawTo({ from, amount }: { from: string; amount: i128 }): string {
     return this.contract
@@ -480,6 +505,37 @@ export class VotesClient {
           from: new Address(from),
           amount,
         })
+      )
+      .toXDR("base64");
+  }
+
+  /**
+   * Constructs a claim operation
+   * @param address The address to claim for
+   * @returns A base64 XDR string of the operation
+   */
+  claim({ address }: { address: string }): string {
+    return this.contract
+      .call(
+        "claim",
+        ...this.spec.funcArgsToScVals("claim", {
+          address: new Address(address),
+        })
+      )
+      .toXDR("base64");
+  }
+
+  /**
+   * Constructs a set_emis operation
+   * @param from The address of the account
+   * @param amount The amount of tokens to withdraw
+   * @returns A base64 XDR string of the operation
+   */
+  setEmis({ tokens, expiration }: { tokens: i128; expiration: u64 }): string {
+    return this.contract
+      .call(
+        "set_emis",
+        ...this.spec.funcArgsToScVals("set_emis", { tokens, expiration })
       )
       .toXDR("base64");
   }

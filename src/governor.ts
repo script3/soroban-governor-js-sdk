@@ -409,21 +409,15 @@ export class GovernorContract extends Contract {
 
   /**
    * Construct a cancel operation
-   * @param creator - The address of the creator
+   * @param from - The address canceling the proposal
    * @param proposal_id - The id of the proposal
    * @returns A base64 XDR string of the operation
    */
-  cancel({
-    creator,
-    proposal_id,
-  }: {
-    creator: string;
-    proposal_id: u32;
-  }): string {
+  cancel({ from, proposal_id }: { from: string; proposal_id: u32 }): string {
     return this.call(
       "cancel",
       ...GovernorContract.spec.funcArgsToScVals("cancel", {
-        creator: new Address(creator),
+        from: new Address(from),
         proposal_id,
       })
     ).toXDR("base64");

@@ -1,5 +1,5 @@
 {
-    "version": "0.3.0",
+    "version": "0.4.0",
     "name": "soroban-governor-js-sdk",
     "dependencies": {
         "@stellar/freighter-api": "1.7.1",

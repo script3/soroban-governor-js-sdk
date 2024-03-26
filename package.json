@@ -1,19 +1,37 @@
 {
     "version": "0.5.0",
-    "name": "soroban-governor-js-sdk",
-    "dependencies": {
-        "@stellar/freighter-api": "1.7.1",
-        "buffer": "6.0.3",
-        "@stellar/stellar-sdk": "11.2.2"
-    },
+    "name": "@script3/soroban-governor-sdk",
+    "description": "Javascript SDK for the Soroban Governor",
+    "type": "module",
+    "license": "MIT",
     "scripts": {
         "build": "node ./scripts/build.mjs"
     },
     "exports": {
         "require": "./dist/cjs/index.js",
-        "import": "./dist/esm/index.js"
+        "import": "./dist/esm/index.js",
+        "types": "./dist/types/index.d.ts"
     },
     "typings": "dist/types/index.d.ts",
+    "files": [
+        "/dist"
+    ],
+    "publishConfig": {
+        "access": "public"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/script3/soroban-governor-js-sdk.git"
+    },
+    "bugs": {
+      "url": "https://github.com/script3/soroban-governor-js-sdk/issues"
+    },
+    "homepage": "https://github.com/script3/soroban-governor-js-sdk#readme",
+    "dependencies": {
+        "@stellar/freighter-api": "1.7.1",
+        "buffer": "6.0.3",
+        "@stellar/stellar-sdk": "11.2.2"
+    },
     "devDependencies": {
         "typescript": "5.3.3"
     }

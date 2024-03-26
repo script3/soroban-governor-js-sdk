@@ -215,6 +215,8 @@ export class StakingVotesContract extends Contract {
       ...StakingVotesContract.spec.funcArgsToScVals("initialize", {
         token: new Address(token),
         governor: new Address(governor),
+        name,
+        symbol,
       })
     ).toXDR("base64");
   }
@@ -334,7 +336,7 @@ export class StakingVotesContract extends Contract {
    */
   withdraw({ from, amount }: { from: string; amount: i128 }): string {
     return this.call(
-      "withdraw_to",
+      "withdraw",
       ...StakingVotesContract.spec.funcArgsToScVals("withdraw", {
         from: new Address(from),
         amount,
@@ -754,6 +756,47 @@ export class TokenVotesContract extends Contract {
         account: new Address(account),
         delegatee: new Address(delegatee),
       })
+    ).toXDR("base64");
+  }
+
+  /**
+   * Construct a mint operation
+   * @param to The address of the account to mint to
+   * @param amount The amount of tokens to mint
+   * @returns A base64 XDR string of the operation
+   */
+  mint({ to, amount }: { to: string; amount: i128 }): string {
+    return this.call(
+      "mint",
+      ...TokenVotesContract.spec.funcArgsToScVals("mint", {
+        to: new Address(to),
+        amount,
+      })
+    ).toXDR("base64");
+  }
+
+  /**
+   * Construct a set_admin operation
+   * @param new_admin The address of the account to set the admin as
+   * @returns A base64 XDR string of the operation
+   */
+  setAdmin({ new_admin }: { new_admin: string }): string {
+    return this.call(
+      "set_admin",
+      ...TokenVotesContract.spec.funcArgsToScVals("set_admin", {
+        new_admin: new Address(new_admin),
+      })
+    ).toXDR("base64");
+  }
+
+  /**
+   * Construct a get admin operation (READ ONLY: Operation should only be simulated)
+   * @returns A base64 XDR string of the operation
+   */
+  admin(): string {
+    return this.call(
+      "admin",
+      ...TokenVotesContract.spec.funcArgsToScVals("admin", {})
     ).toXDR("base64");
   }
 }

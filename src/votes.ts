@@ -16,6 +16,7 @@ export const VotesErrors = {
   101: { message: "InvalidDelegateeError" },
   102: { message: "InvalidCheckpointError" },
   103: { message: "SequenceNotClosedError" },
+  104: { message: "InvalidEmissionConfigError" },
 };
 
 /**
@@ -78,7 +79,307 @@ export interface VotingUnits {
   timestamp: u64;
 }
 
-export class VotesContract extends Contract {
+/**
+ * The client for the Staking Votes Contract. This is intended for contracts that intake Stellar Assets
+ * in exchange for a non-transferable voting token that implements the Votes trait.
+ */
+export class StakingVotesContract extends Contract {
+  static readonly spec = new ContractSpec([
+    "AAAAAAAAAAAAAAAMdG90YWxfc3VwcGx5AAAAAAAAAAEAAAAL",
+    "AAAAAAAAAAAAAAARc2V0X3ZvdGVfc2VxdWVuY2UAAAAAAAABAAAAAAAAAAhzZXF1ZW5jZQAAAAQAAAAA",
+    "AAAAAAAAAAAAAAAVZ2V0X3Bhc3RfdG90YWxfc3VwcGx5AAAAAAAAAQAAAAAAAAAIc2VxdWVuY2UAAAAEAAAAAQAAAAs=",
+    "AAAAAAAAAAAAAAAJZ2V0X3ZvdGVzAAAAAAAAAQAAAAAAAAAHYWNjb3VudAAAAAATAAAAAQAAAAs=",
+    "AAAAAAAAAAAAAAAOZ2V0X3Bhc3Rfdm90ZXMAAAAAAAIAAAAAAAAABHVzZXIAAAATAAAAAAAAAAhzZXF1ZW5jZQAAAAQAAAABAAAACw==",
+    "AAAAAAAAAAAAAAAMZ2V0X2RlbGVnYXRlAAAAAQAAAAAAAAAHYWNjb3VudAAAAAATAAAAAQAAABM=",
+    "AAAAAAAAAAAAAAAIZGVsZWdhdGUAAAACAAAAAAAAAAdhY2NvdW50AAAAABMAAAAAAAAACWRlbGVnYXRlZQAAAAAAABMAAAAA",
+    "AAAAAAAAAAAAAAAKaW5pdGlhbGl6ZQAAAAAABAAAAAAAAAAFdG9rZW4AAAAAAAATAAAAAAAAAAhnb3Zlcm5vcgAAABMAAAAAAAAABG5hbWUAAAAQAAAAAAAAAAZzeW1ib2wAAAAAABAAAAAA",
+    "AAAAAAAAAAAAAAAHZGVwb3NpdAAAAAACAAAAAAAAAARmcm9tAAAAEwAAAAAAAAAGYW1vdW50AAAAAAALAAAAAA==",
+    "AAAAAAAAAAAAAAAId2l0aGRyYXcAAAACAAAAAAAAAARmcm9tAAAAEwAAAAAAAAAGYW1vdW50AAAAAAALAAAAAA==",
+    "AAAAAAAAAAAAAAAFY2xhaW0AAAAAAAABAAAAAAAAAAdhZGRyZXNzAAAAABMAAAABAAAACw==",
+    "AAAAAAAAAAAAAAAIc2V0X2VtaXMAAAACAAAAAAAAAAZ0b2tlbnMAAAAAAAsAAAAAAAAACmV4cGlyYXRpb24AAAAAAAYAAAAA",
+    "AAAAAAAAAAAAAAAHYmFsYW5jZQAAAAABAAAAAAAAAAJpZAAAAAAAEwAAAAEAAAAL",
+    "AAAAAAAAAAAAAAAIZGVjaW1hbHMAAAAAAAAAAQAAAAQ=",
+    "AAAAAAAAAAAAAAAEbmFtZQAAAAAAAAABAAAAEA==",
+    "AAAAAAAAAAAAAAAGc3ltYm9sAAAAAAAAAAAAAQAAABA=",
+    "AAAABAAAACFUaGUgZXJyb3IgY29kZXMgZm9yIHRoZSBjb250cmFjdC4AAAAAAAAAAAAAD1Rva2VuVm90ZXNFcnJvcgAAAAAMAAAAAAAAAA1JbnRlcm5hbEVycm9yAAAAAAAAAQAAAAAAAAAXQWxyZWFkeUluaXRpYWxpemVkRXJyb3IAAAAAAwAAAAAAAAARVW5hdXRob3JpemVkRXJyb3IAAAAAAAAEAAAAAAAAABNOZWdhdGl2ZUFtb3VudEVycm9yAAAAAAgAAAAAAAAADkFsbG93YW5jZUVycm9yAAAAAAAJAAAAAAAAAAxCYWxhbmNlRXJyb3IAAAAKAAAAAAAAAA1PdmVyZmxvd0Vycm9yAAAAAAAADAAAAAAAAAAWSW5zdWZmaWNpZW50Vm90ZXNFcnJvcgAAAAAAZAAAAAAAAAAVSW52YWxpZERlbGVnYXRlZUVycm9yAAAAAAAAZQAAAAAAAAAWSW52YWxpZENoZWNrcG9pbnRFcnJvcgAAAAAAZgAAAAAAAAAWU2VxdWVuY2VOb3RDbG9zZWRFcnJvcgAAAAAAZwAAAAAAAAAaSW52YWxpZEVtaXNzaW9uQ29uZmlnRXJyb3IAAAAAAGg=",
+    "AAAAAQAAAAAAAAAAAAAAEEFsbG93YW5jZURhdGFLZXkAAAACAAAAAAAAAARmcm9tAAAAEwAAAAAAAAAHc3BlbmRlcgAAAAAT",
+    "AAAAAQAAAAAAAAAAAAAADkFsbG93YW5jZVZhbHVlAAAAAAACAAAAAAAAAAZhbW91bnQAAAAAAAsAAAAAAAAAEWV4cGlyYXRpb25fbGVkZ2VyAAAAAAAABA==",
+    "AAAAAgAAAAAAAAAAAAAAB0RhdGFLZXkAAAAABQAAAAEAAAAAAAAACUFsbG93YW5jZQAAAAAAAAEAAAfQAAAAEEFsbG93YW5jZURhdGFLZXkAAAABAAAAAAAAAAdCYWxhbmNlAAAAAAEAAAATAAAAAQAAAAAAAAAFVm90ZXMAAAAAAAABAAAAEwAAAAEAAAAAAAAAClZvdGVzQ2hlY2sAAAAAAAEAAAATAAAAAQAAAAAAAAAIRGVsZWdhdGUAAAABAAAAEw==",
+    "AAAAAQAAAAAAAAAAAAAAB0VtaXNLZXkAAAAAAQAAAAAAAAABMAAAAAAAABM=",
+    "AAAAAQAAAAAAAAAAAAAADVRva2VuTWV0YWRhdGEAAAAAAAADAAAAAAAAAAdkZWNpbWFsAAAAAAQAAAAAAAAABG5hbWUAAAAQAAAAAAAAAAZzeW1ib2wAAAAAABA=",
+    "AAAAAQAAAAAAAAAAAAAADkVtaXNzaW9uQ29uZmlnAAAAAAACAAAAAAAAAANlcHMAAAAABgAAAAAAAAAKZXhwaXJhdGlvbgAAAAAABg==",
+    "AAAAAQAAAAAAAAAAAAAADEVtaXNzaW9uRGF0YQAAAAIAAAAAAAAABWluZGV4AAAAAAAACwAAAAAAAAAJbGFzdF90aW1lAAAAAAAABg==",
+    "AAAAAQAAAAAAAAAAAAAAEFVzZXJFbWlzc2lvbkRhdGEAAAACAAAAAAAAAAdhY2NydWVkAAAAAAsAAAAAAAAABWluZGV4AAAAAAAACw==",
+  ]);
+
+  static readonly parsers = {
+    totalSupply: (result: string): i128 =>
+      StakingVotesContract.spec.funcResToNative("total_supply", result),
+    setVoteSequence: () => {},
+    getPastTotalSupply: (result: string): i128 =>
+      StakingVotesContract.spec.funcResToNative(
+        "get_past_total_supply",
+        result
+      ),
+    getVotes: (result: string): i128 =>
+      StakingVotesContract.spec.funcResToNative("get_votes", result),
+    getPastVotes: (result: string): i128 =>
+      StakingVotesContract.spec.funcResToNative("get_past_votes", result),
+    getDelegate: (result: string): string =>
+      StakingVotesContract.spec.funcResToNative("get_delegate", result),
+    delegate: () => {},
+    initialize: () => {},
+    deposit: () => {},
+    withdraw: () => {},
+    claim: (result: string): i128 =>
+      StakingVotesContract.spec.funcResToNative("claim", result),
+    setEmis: () => {},
+    balance: (result: string): i128 =>
+      StakingVotesContract.spec.funcResToNative("balance", result),
+    decimals: (result: string): u32 =>
+      StakingVotesContract.spec.funcResToNative("decimals", result),
+    name: (result: string): string =>
+      StakingVotesContract.spec.funcResToNative("name", result),
+    symbol: (result: string): string =>
+      StakingVotesContract.spec.funcResToNative("symbol", result),
+  };
+
+  /**
+   * Constructs a balance operation
+   * @param id The address of the account
+   * @returns A base64 XDR string of the operation
+   */
+  balance({ id }: { id: string }): string {
+    return this.call(
+      "balance",
+      ...StakingVotesContract.spec.funcArgsToScVals("balance", {
+        id: new Address(id),
+      })
+    ).toXDR("base64");
+  }
+
+  /**
+   * Constructs a decimals operation (READ ONLY: Operation should only be simulated)
+   * @returns A base64 XDR string of the operation
+   */
+  decimals(): string {
+    return this.call(
+      "decimals",
+      ...StakingVotesContract.spec.funcArgsToScVals("decimals", {})
+    ).toXDR("base64");
+  }
+
+  /**
+   * Constructs a name operation (READ ONLY: Operation should only be simulated)
+   * @returns A base64 XDR string of the operation
+   */
+  name(): string {
+    return this.call(
+      "name",
+      ...StakingVotesContract.spec.funcArgsToScVals("name", {})
+    ).toXDR("base64");
+  }
+
+  /**
+   * Constructs a symbol operation (READ ONLY: Operation should only be simulated)
+   * @returns A base64 XDR string of the operation
+   */
+  symbol(): string {
+    return this.call(
+      "symbol",
+      ...StakingVotesContract.spec.funcArgsToScVals("symbol", {})
+    ).toXDR("base64");
+  }
+
+  /**
+   * Constructs an initialize operation
+   * @param token The address of the voting token
+   * @param governor The address of the governor
+   * @param name The name of the token
+   * @param symbol The symbol of the token
+   * @returns A base64 XDR string of the operation
+   */
+  initialize({
+    token,
+    governor,
+    name,
+    symbol,
+  }: {
+    token: string;
+    governor: string;
+    name: string;
+    symbol: string;
+  }): string {
+    return this.call(
+      "initialize",
+      ...StakingVotesContract.spec.funcArgsToScVals("initialize", {
+        token: new Address(token),
+        governor: new Address(governor),
+        name,
+        symbol,
+      })
+    ).toXDR("base64");
+  }
+
+  /**
+   * Constructs a total_supply operation (READ ONLY: Operation should only be simulated)
+   * @returns A base64 XDR string of the operation
+   */
+  totalSupply(): string {
+    return this.call(
+      "total_supply",
+      ...StakingVotesContract.spec.funcArgsToScVals("total_supply", {})
+    ).toXDR("base64");
+  }
+
+  /**
+   * Constructs a get_past_total_supply operation (READ ONLY: Operation should only be simulated)
+   * @param sequence The sequence number
+   * @returns A base64 XDR string of the operation
+   */
+  getPastTotalSupply({ sequence }: { sequence: u32 }): string {
+    return this.call(
+      "get_past_total_supply",
+      ...StakingVotesContract.spec.funcArgsToScVals("get_past_total_supply", {
+        sequence,
+      })
+    ).toXDR("base64");
+  }
+
+  /**
+   * Constructs a get_votes operation (READ ONLY: Operation should only be simulated)
+   * @param account The address of the account
+   * @returns A base64 XDR string of the operation
+   */
+  getVotes({ account }: { account: string }): string {
+    return this.call(
+      "get_votes",
+      ...StakingVotesContract.spec.funcArgsToScVals("get_votes", {
+        account: new Address(account),
+      })
+    ).toXDR("base64");
+  }
+
+  /**
+   * Constructs a get_past_votes operation (READ ONLY: Operation should only be simulated)
+   * @param user The address of the user
+   * @param sequence The sequence number
+   * @returns A base64 XDR string of the operation
+   */
+  getPastVotes({ user, sequence }: { user: string; sequence: u32 }): string {
+    return this.call(
+      "get_past_votes",
+      ...StakingVotesContract.spec.funcArgsToScVals("get_past_votes", {
+        user: new Address(user),
+        sequence,
+      })
+    ).toXDR("base64");
+  }
+
+  /**
+   * Constructs a get_delegate operation (READ ONLY: Operation should only be simulated)
+   * @param account The address of the account
+   * @returns A base64 XDR string of the operation
+   */
+  getDelegate({ account }: { account: string }): string {
+    return this.call(
+      "get_delegate",
+      ...StakingVotesContract.spec.funcArgsToScVals("get_delegate", {
+        account: new Address(account),
+      })
+    ).toXDR("base64");
+  }
+
+  /**
+   * Constructs a delegate operation
+   * @param account The address of the account delgating the votes
+   * @param delegatee The address of the delegatee
+   * @returns A base64 XDR string of the operation
+   */
+  delegate({
+    account,
+    delegatee,
+  }: {
+    account: string;
+    delegatee: string;
+  }): string {
+    return this.call(
+      "delegate",
+      ...StakingVotesContract.spec.funcArgsToScVals("delegate", {
+        account: new Address(account),
+        delegatee: new Address(delegatee),
+      })
+    ).toXDR("base64");
+  }
+
+  /**
+   * Constructs a deposit operation
+   * @param from The address of the account
+   * @param amount The amount of tokens to deposit
+   * @returns A base64 XDR string of the operation
+   */
+  deposit({ from, amount }: { from: string; amount: i128 }): string {
+    return this.call(
+      "deposit",
+      ...StakingVotesContract.spec.funcArgsToScVals("deposit", {
+        from: new Address(from),
+        amount,
+      })
+    ).toXDR("base64");
+  }
+
+  /**
+   * Constructs a withdraw operation
+   * @param from The address of the account
+   * @param amount The amount of tokens to withdraw
+   * @returns A base64 XDR string of the operation
+   */
+  withdraw({ from, amount }: { from: string; amount: i128 }): string {
+    return this.call(
+      "withdraw",
+      ...StakingVotesContract.spec.funcArgsToScVals("withdraw", {
+        from: new Address(from),
+        amount,
+      })
+    ).toXDR("base64");
+  }
+
+  /**
+   * Constructs a claim operation
+   * @param address The address to claim for
+   * @returns A base64 XDR string of the operation
+   */
+  claim({ address }: { address: string }): string {
+    return this.call(
+      "claim",
+      ...StakingVotesContract.spec.funcArgsToScVals("claim", {
+        address: new Address(address),
+      })
+    ).toXDR("base64");
+  }
+
+  /**
+   * Constructs a set_emis operation
+   * @param from The address of the account
+   * @param amount The amount of tokens to withdraw
+   * @returns A base64 XDR string of the operation
+   */
+  setEmis({ tokens, expiration }: { tokens: i128; expiration: u64 }): string {
+    return this.call(
+      "set_emis",
+      ...StakingVotesContract.spec.funcArgsToScVals("set_emis", {
+        tokens,
+        expiration,
+      })
+    ).toXDR("base64");
+  }
+}
+
+/**
+ * The client for the Token Votes Contract. This is intended for Soroban tokens
+ * that implement the Votes trait.
+ */
+export class TokenVotesContract extends Contract {
   static readonly spec = new ContractSpec([
     "AAAAAAAAAAAAAAAJYWxsb3dhbmNlAAAAAAAAAgAAAAAAAAAEZnJvbQAAABMAAAAAAAAAB3NwZW5kZXIAAAAAEwAAAAEAAAAL",
     "AAAAAAAAAAAAAAAHYXBwcm92ZQAAAAAEAAAAAAAAAARmcm9tAAAAEwAAAAAAAAAHc3BlbmRlcgAAAAATAAAAAAAAAAZhbW91bnQAAAAAAAsAAAAAAAAAEWV4cGlyYXRpb25fbGVkZ2VyAAAAAAAABAAAAAA=",
@@ -97,58 +398,49 @@ export class VotesContract extends Contract {
     "AAAAAAAAAAAAAAAOZ2V0X3Bhc3Rfdm90ZXMAAAAAAAIAAAAAAAAABHVzZXIAAAATAAAAAAAAAAhzZXF1ZW5jZQAAAAQAAAABAAAACw==",
     "AAAAAAAAAAAAAAAMZ2V0X2RlbGVnYXRlAAAAAQAAAAAAAAAHYWNjb3VudAAAAAATAAAAAQAAABM=",
     "AAAAAAAAAAAAAAAIZGVsZWdhdGUAAAACAAAAAAAAAAdhY2NvdW50AAAAABMAAAAAAAAACWRlbGVnYXRlZQAAAAAAABMAAAAA",
+    "AAAAAAAAAAAAAAAKaW5pdGlhbGl6ZQAAAAAABQAAAAAAAAAFYWRtaW4AAAAAAAATAAAAAAAAAAhnb3Zlcm5vcgAAABMAAAAAAAAAB2RlY2ltYWwAAAAABAAAAAAAAAAEbmFtZQAAABAAAAAAAAAABnN5bWJvbAAAAAAAEAAAAAA=",
     "AAAAAAAAAAAAAAAEbWludAAAAAIAAAAAAAAAAnRvAAAAAAATAAAAAAAAAAZhbW91bnQAAAAAAAsAAAAA",
     "AAAAAAAAAAAAAAAJc2V0X2FkbWluAAAAAAAAAQAAAAAAAAAJbmV3X2FkbWluAAAAAAAAEwAAAAA=",
     "AAAAAAAAAAAAAAAFYWRtaW4AAAAAAAAAAAAAAQAAABM=",
-    "AAAAAAAAAAAAAAAKaW5pdGlhbGl6ZQAAAAAAAgAAAAAAAAAFdG9rZW4AAAAAAAATAAAAAAAAAAhnb3Zlcm5vcgAAABMAAAAA",
-    "AAAAAAAAAAAAAAALZGVwb3NpdF9mb3IAAAAAAgAAAAAAAAAEZnJvbQAAABMAAAAAAAAABmFtb3VudAAAAAAACwAAAAA=",
-    "AAAAAAAAAAAAAAALd2l0aGRyYXdfdG8AAAAAAgAAAAAAAAAEZnJvbQAAABMAAAAAAAAABmFtb3VudAAAAAAACwAAAAA=",
-    "AAAAAAAAAAAAAAAFY2xhaW0AAAAAAAABAAAAAAAAAAdhZGRyZXNzAAAAABMAAAABAAAACw==",
-    "AAAAAAAAAAAAAAAIc2V0X2VtaXMAAAACAAAAAAAAAAZ0b2tlbnMAAAAAAAsAAAAAAAAACmV4cGlyYXRpb24AAAAAAAYAAAAA",
     "AAAABAAAACFUaGUgZXJyb3IgY29kZXMgZm9yIHRoZSBjb250cmFjdC4AAAAAAAAAAAAAD1Rva2VuVm90ZXNFcnJvcgAAAAAMAAAAAAAAAA1JbnRlcm5hbEVycm9yAAAAAAAAAQAAAAAAAAAXQWxyZWFkeUluaXRpYWxpemVkRXJyb3IAAAAAAwAAAAAAAAARVW5hdXRob3JpemVkRXJyb3IAAAAAAAAEAAAAAAAAABNOZWdhdGl2ZUFtb3VudEVycm9yAAAAAAgAAAAAAAAADkFsbG93YW5jZUVycm9yAAAAAAAJAAAAAAAAAAxCYWxhbmNlRXJyb3IAAAAKAAAAAAAAAA1PdmVyZmxvd0Vycm9yAAAAAAAADAAAAAAAAAAWSW5zdWZmaWNpZW50Vm90ZXNFcnJvcgAAAAAAZAAAAAAAAAAVSW52YWxpZERlbGVnYXRlZUVycm9yAAAAAAAAZQAAAAAAAAAWSW52YWxpZENoZWNrcG9pbnRFcnJvcgAAAAAAZgAAAAAAAAAWU2VxdWVuY2VOb3RDbG9zZWRFcnJvcgAAAAAAZwAAAAAAAAAaSW52YWxpZEVtaXNzaW9uQ29uZmlnRXJyb3IAAAAAAGg=",
     "AAAAAQAAAAAAAAAAAAAAEEFsbG93YW5jZURhdGFLZXkAAAACAAAAAAAAAARmcm9tAAAAEwAAAAAAAAAHc3BlbmRlcgAAAAAT",
     "AAAAAQAAAAAAAAAAAAAADkFsbG93YW5jZVZhbHVlAAAAAAACAAAAAAAAAAZhbW91bnQAAAAAAAsAAAAAAAAAEWV4cGlyYXRpb25fbGVkZ2VyAAAAAAAABA==",
     "AAAAAgAAAAAAAAAAAAAAB0RhdGFLZXkAAAAABQAAAAEAAAAAAAAACUFsbG93YW5jZQAAAAAAAAEAAAfQAAAAEEFsbG93YW5jZURhdGFLZXkAAAABAAAAAAAAAAdCYWxhbmNlAAAAAAEAAAATAAAAAQAAAAAAAAAFVm90ZXMAAAAAAAABAAAAEwAAAAEAAAAAAAAAClZvdGVzQ2hlY2sAAAAAAAEAAAATAAAAAQAAAAAAAAAIRGVsZWdhdGUAAAABAAAAEw==",
-    "AAAAAQAAAAAAAAAAAAAAB0VtaXNLZXkAAAAAAQAAAAAAAAABMAAAAAAAABM=",
     "AAAAAQAAAAAAAAAAAAAADVRva2VuTWV0YWRhdGEAAAAAAAADAAAAAAAAAAdkZWNpbWFsAAAAAAQAAAAAAAAABG5hbWUAAAAQAAAAAAAAAAZzeW1ib2wAAAAAABA=",
-    "AAAAAQAAAAAAAAAAAAAADkVtaXNzaW9uQ29uZmlnAAAAAAACAAAAAAAAAANlcHMAAAAABgAAAAAAAAAKZXhwaXJhdGlvbgAAAAAABg==",
-    "AAAAAQAAAAAAAAAAAAAADEVtaXNzaW9uRGF0YQAAAAIAAAAAAAAABWluZGV4AAAAAAAACwAAAAAAAAAJbGFzdF90aW1lAAAAAAAABg==",
-    "AAAAAQAAAAAAAAAAAAAAEFVzZXJFbWlzc2lvbkRhdGEAAAACAAAAAAAAAAdhY2NydWVkAAAAAAsAAAAAAAAABWluZGV4AAAAAAAACw==",
   ]);
 
   static readonly parsers = {
     allowance: (result: string): i128 =>
-      VotesContract.spec.funcResToNative("allowance", result),
+      this.spec.funcResToNative("allowance", result),
     approve: () => {},
     balance: (result: string): i128 =>
-      VotesContract.spec.funcResToNative("balance", result),
+      this.spec.funcResToNative("balance", result),
     transfer: () => {},
     transferFrom: () => {},
     burn: () => {},
     burnFrom: () => {},
     decimals: (result: string): u32 =>
-      VotesContract.spec.funcResToNative("decimals", result),
-    name: (result: string): string =>
-      VotesContract.spec.funcResToNative("name", result),
+      this.spec.funcResToNative("decimals", result),
+    name: (result: string): string => this.spec.funcResToNative("name", result),
     symbol: (result: string): string =>
-      VotesContract.spec.funcResToNative("symbol", result),
-    initialize: () => {},
+      this.spec.funcResToNative("symbol", result),
     totalSupply: (result: string): i128 =>
-      VotesContract.spec.funcResToNative("total_supply", result),
+      this.spec.funcResToNative("total_supply", result),
+    setVoteSequence: () => {},
     getPastTotalSupply: (result: string): i128 =>
-      VotesContract.spec.funcResToNative("get_past_total_supply", result),
+      this.spec.funcResToNative("get_past_total_supply", result),
     getVotes: (result: string): i128 =>
-      VotesContract.spec.funcResToNative("get_votes", result),
+      this.spec.funcResToNative("get_votes", result),
     getPastVotes: (result: string): i128 =>
-      VotesContract.spec.funcResToNative("get_past_votes", result),
+      this.spec.funcResToNative("get_past_votes", result),
     getDelegate: (result: string): string =>
-      VotesContract.spec.funcResToNative("get_delegate", result),
+      this.spec.funcResToNative("get_delegate", result),
     delegate: () => {},
-    depositFor: () => {},
-    withdrawTo: () => {},
-    claim: (result: string): i128 =>
-      VotesContract.spec.funcResToNative("claim", result),
-    setEmis: () => {},
+    initialize: () => {},
+    mint: () => {},
+    setAdmin: () => {},
+    admin: (result: string): string =>
+      this.spec.funcResToNative("admin", result),
   };
 
   /**
@@ -160,7 +452,7 @@ export class VotesContract extends Contract {
   allowance({ from, spender }: { from: string; spender: string }): string {
     return this.call(
       "allowance",
-      ...VotesContract.spec.funcArgsToScVals("allowance", {
+      ...TokenVotesContract.spec.funcArgsToScVals("allowance", {
         from: new Address(from),
         spender: new Address(spender),
       })
@@ -188,7 +480,7 @@ export class VotesContract extends Contract {
   }): string {
     return this.call(
       "approve",
-      ...VotesContract.spec.funcArgsToScVals("approve", {
+      ...TokenVotesContract.spec.funcArgsToScVals("approve", {
         from: new Address(from),
         spender: new Address(spender),
         amount,
@@ -205,7 +497,7 @@ export class VotesContract extends Contract {
   balance({ id }: { id: string }): string {
     return this.call(
       "balance",
-      ...VotesContract.spec.funcArgsToScVals("balance", {
+      ...TokenVotesContract.spec.funcArgsToScVals("balance", {
         id: new Address(id),
       })
     ).toXDR("base64");
@@ -229,7 +521,7 @@ export class VotesContract extends Contract {
   }): string {
     return this.call(
       "transfer",
-      ...VotesContract.spec.funcArgsToScVals("transfer", {
+      ...TokenVotesContract.spec.funcArgsToScVals("transfer", {
         from: new Address(from),
         to: new Address(to),
         amount,
@@ -258,7 +550,7 @@ export class VotesContract extends Contract {
   }): string {
     return this.call(
       "transfer_from",
-      ...VotesContract.spec.funcArgsToScVals("transfer_from", {
+      ...TokenVotesContract.spec.funcArgsToScVals("transfer_from", {
         spender: new Address(spender),
         from: new Address(from),
         to: new Address(to),
@@ -276,7 +568,7 @@ export class VotesContract extends Contract {
   burn({ from, amount }: { from: string; amount: i128 }): string {
     return this.call(
       "burn",
-      ...VotesContract.spec.funcArgsToScVals("burn", {
+      ...TokenVotesContract.spec.funcArgsToScVals("burn", {
         from: new Address(from),
         amount,
       })
@@ -301,7 +593,7 @@ export class VotesContract extends Contract {
   }): string {
     return this.call(
       "burn_from",
-      ...VotesContract.spec.funcArgsToScVals("burn_from", {
+      ...TokenVotesContract.spec.funcArgsToScVals("burn_from", {
         from: new Address(from),
         spender: new Address(spender),
         amount,
@@ -316,7 +608,7 @@ export class VotesContract extends Contract {
   decimals(): string {
     return this.call(
       "decimals",
-      ...VotesContract.spec.funcArgsToScVals("decimals", {})
+      ...TokenVotesContract.spec.funcArgsToScVals("decimals", {})
     ).toXDR("base64");
   }
 
@@ -327,7 +619,7 @@ export class VotesContract extends Contract {
   name(): string {
     return this.call(
       "name",
-      ...VotesContract.spec.funcArgsToScVals("name", {})
+      ...TokenVotesContract.spec.funcArgsToScVals("name", {})
     ).toXDR("base64");
   }
 
@@ -338,22 +630,40 @@ export class VotesContract extends Contract {
   symbol(): string {
     return this.call(
       "symbol",
-      ...VotesContract.spec.funcArgsToScVals("symbol", {})
+      ...TokenVotesContract.spec.funcArgsToScVals("symbol", {})
     ).toXDR("base64");
   }
 
   /**
    * Constructs an initialize operation
-   * @param token The address of the voting token
+   * @param admin The address of the admin
    * @param governor The address of the governor
+   * @param decimal The number of decimal places used for the token
+   * @param name The name of the token
+   * @param symbol The symbol of the token
    * @returns A base64 XDR string of the operation
    */
-  initialize({ token, governor }: { token: string; governor: string }): string {
+  initialize({
+    admin,
+    governor,
+    decimal,
+    name,
+    symbol,
+  }: {
+    admin: string;
+    governor: string;
+    decimal: u32;
+    name: string;
+    symbol: string;
+  }): string {
     return this.call(
       "initialize",
-      ...VotesContract.spec.funcArgsToScVals("initialize", {
-        token: new Address(token),
+      ...TokenVotesContract.spec.funcArgsToScVals("initialize", {
+        admin: new Address(admin),
         governor: new Address(governor),
+        decimal,
+        name,
+        symbol,
       })
     ).toXDR("base64");
   }
@@ -365,7 +675,7 @@ export class VotesContract extends Contract {
   totalSupply(): string {
     return this.call(
       "total_supply",
-      ...VotesContract.spec.funcArgsToScVals("total_supply", {})
+      ...TokenVotesContract.spec.funcArgsToScVals("total_supply", {})
     ).toXDR("base64");
   }
 
@@ -377,7 +687,7 @@ export class VotesContract extends Contract {
   getPastTotalSupply({ sequence }: { sequence: u32 }): string {
     return this.call(
       "get_past_total_supply",
-      ...VotesContract.spec.funcArgsToScVals("get_past_total_supply", {
+      ...TokenVotesContract.spec.funcArgsToScVals("get_past_total_supply", {
         sequence,
       })
     ).toXDR("base64");
@@ -391,7 +701,7 @@ export class VotesContract extends Contract {
   getVotes({ account }: { account: string }): string {
     return this.call(
       "get_votes",
-      ...VotesContract.spec.funcArgsToScVals("get_votes", {
+      ...TokenVotesContract.spec.funcArgsToScVals("get_votes", {
         account: new Address(account),
       })
     ).toXDR("base64");
@@ -406,7 +716,7 @@ export class VotesContract extends Contract {
   getPastVotes({ user, sequence }: { user: string; sequence: u32 }): string {
     return this.call(
       "get_past_votes",
-      ...VotesContract.spec.funcArgsToScVals("get_past_votes", {
+      ...TokenVotesContract.spec.funcArgsToScVals("get_past_votes", {
         user: new Address(user),
         sequence,
       })
@@ -421,7 +731,7 @@ export class VotesContract extends Contract {
   getDelegate({ account }: { account: string }): string {
     return this.call(
       "get_delegate",
-      ...VotesContract.spec.funcArgsToScVals("get_delegate", {
+      ...TokenVotesContract.spec.funcArgsToScVals("get_delegate", {
         account: new Address(account),
       })
     ).toXDR("base64");
@@ -442,7 +752,7 @@ export class VotesContract extends Contract {
   }): string {
     return this.call(
       "delegate",
-      ...VotesContract.spec.funcArgsToScVals("delegate", {
+      ...TokenVotesContract.spec.funcArgsToScVals("delegate", {
         account: new Address(account),
         delegatee: new Address(delegatee),
       })
@@ -450,64 +760,43 @@ export class VotesContract extends Contract {
   }
 
   /**
-   * Constructs a deposit_for operation
-   * @param from The address of the account
-   * @param amount The amount of tokens to deposit
+   * Construct a mint operation
+   * @param to The address of the account to mint to
+   * @param amount The amount of tokens to mint
    * @returns A base64 XDR string of the operation
    */
-  depositFor({ from, amount }: { from: string; amount: i128 }): string {
+  mint({ to, amount }: { to: string; amount: i128 }): string {
     return this.call(
-      "deposit_for",
-      ...VotesContract.spec.funcArgsToScVals("deposit_for", {
-        from: new Address(from),
+      "mint",
+      ...TokenVotesContract.spec.funcArgsToScVals("mint", {
+        to: new Address(to),
         amount,
       })
     ).toXDR("base64");
   }
 
   /**
-   * Constructs a withdraw_to operation
-   * @param from The address of the account
-   * @param amount The amount of tokens to withdraw
+   * Construct a set_admin operation
+   * @param new_admin The address of the account to set the admin as
    * @returns A base64 XDR string of the operation
    */
-  withdrawTo({ from, amount }: { from: string; amount: i128 }): string {
+  setAdmin({ new_admin }: { new_admin: string }): string {
     return this.call(
-      "withdraw_to",
-      ...VotesContract.spec.funcArgsToScVals("withdraw_to", {
-        from: new Address(from),
-        amount,
+      "set_admin",
+      ...TokenVotesContract.spec.funcArgsToScVals("set_admin", {
+        new_admin: new Address(new_admin),
       })
     ).toXDR("base64");
   }
 
   /**
-   * Constructs a claim operation
-   * @param address The address to claim for
+   * Construct a get admin operation (READ ONLY: Operation should only be simulated)
    * @returns A base64 XDR string of the operation
    */
-  claim({ address }: { address: string }): string {
+  admin(): string {
     return this.call(
-      "claim",
-      ...VotesContract.spec.funcArgsToScVals("claim", {
-        address: new Address(address),
-      })
-    ).toXDR("base64");
-  }
-
-  /**
-   * Constructs a set_emis operation
-   * @param from The address of the account
-   * @param amount The amount of tokens to withdraw
-   * @returns A base64 XDR string of the operation
-   */
-  setEmis({ tokens, expiration }: { tokens: i128; expiration: u64 }): string {
-    return this.call(
-      "set_emis",
-      ...VotesContract.spec.funcArgsToScVals("set_emis", {
-        tokens,
-        expiration,
-      })
+      "admin",
+      ...TokenVotesContract.spec.funcArgsToScVals("admin", {})
     ).toXDR("base64");
   }
 }

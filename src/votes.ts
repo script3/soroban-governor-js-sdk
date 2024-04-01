@@ -80,10 +80,10 @@ export interface VotingUnits {
 }
 
 /**
- * The client for the Staking Votes Contract. This is intended for contracts that intake Stellar Assets
+ * The client for the Bonding Votes Contract. This is intended for contracts that intake Stellar Assets
  * in exchange for a non-transferable voting token that implements the Votes trait.
  */
-export class StakingVotesContract extends Contract {
+export class BondingVotesContract extends Contract {
   static readonly spec = new ContractSpec([
     "AAAAAAAAAAAAAAAMdG90YWxfc3VwcGx5AAAAAAAAAAEAAAAL",
     "AAAAAAAAAAAAAAARc2V0X3ZvdGVfc2VxdWVuY2UAAAAAAAABAAAAAAAAAAhzZXF1ZW5jZQAAAAQAAAAA",
@@ -114,34 +114,34 @@ export class StakingVotesContract extends Contract {
 
   static readonly parsers = {
     totalSupply: (result: string): i128 =>
-      StakingVotesContract.spec.funcResToNative("total_supply", result),
+      BondingVotesContract.spec.funcResToNative("total_supply", result),
     setVoteSequence: () => {},
     getPastTotalSupply: (result: string): i128 =>
-      StakingVotesContract.spec.funcResToNative(
+      BondingVotesContract.spec.funcResToNative(
         "get_past_total_supply",
         result
       ),
     getVotes: (result: string): i128 =>
-      StakingVotesContract.spec.funcResToNative("get_votes", result),
+      BondingVotesContract.spec.funcResToNative("get_votes", result),
     getPastVotes: (result: string): i128 =>
-      StakingVotesContract.spec.funcResToNative("get_past_votes", result),
+      BondingVotesContract.spec.funcResToNative("get_past_votes", result),
     getDelegate: (result: string): string =>
-      StakingVotesContract.spec.funcResToNative("get_delegate", result),
+      BondingVotesContract.spec.funcResToNative("get_delegate", result),
     delegate: () => {},
     initialize: () => {},
     deposit: () => {},
     withdraw: () => {},
     claim: (result: string): i128 =>
-      StakingVotesContract.spec.funcResToNative("claim", result),
+      BondingVotesContract.spec.funcResToNative("claim", result),
     setEmis: () => {},
     balance: (result: string): i128 =>
-      StakingVotesContract.spec.funcResToNative("balance", result),
+      BondingVotesContract.spec.funcResToNative("balance", result),
     decimals: (result: string): u32 =>
-      StakingVotesContract.spec.funcResToNative("decimals", result),
+      BondingVotesContract.spec.funcResToNative("decimals", result),
     name: (result: string): string =>
-      StakingVotesContract.spec.funcResToNative("name", result),
+      BondingVotesContract.spec.funcResToNative("name", result),
     symbol: (result: string): string =>
-      StakingVotesContract.spec.funcResToNative("symbol", result),
+      BondingVotesContract.spec.funcResToNative("symbol", result),
   };
 
   /**
@@ -152,7 +152,7 @@ export class StakingVotesContract extends Contract {
   balance({ id }: { id: string }): string {
     return this.call(
       "balance",
-      ...StakingVotesContract.spec.funcArgsToScVals("balance", {
+      ...BondingVotesContract.spec.funcArgsToScVals("balance", {
         id: new Address(id),
       })
     ).toXDR("base64");
@@ -165,7 +165,7 @@ export class StakingVotesContract extends Contract {
   decimals(): string {
     return this.call(
       "decimals",
-      ...StakingVotesContract.spec.funcArgsToScVals("decimals", {})
+      ...BondingVotesContract.spec.funcArgsToScVals("decimals", {})
     ).toXDR("base64");
   }
 
@@ -176,7 +176,7 @@ export class StakingVotesContract extends Contract {
   name(): string {
     return this.call(
       "name",
-      ...StakingVotesContract.spec.funcArgsToScVals("name", {})
+      ...BondingVotesContract.spec.funcArgsToScVals("name", {})
     ).toXDR("base64");
   }
 
@@ -187,7 +187,7 @@ export class StakingVotesContract extends Contract {
   symbol(): string {
     return this.call(
       "symbol",
-      ...StakingVotesContract.spec.funcArgsToScVals("symbol", {})
+      ...BondingVotesContract.spec.funcArgsToScVals("symbol", {})
     ).toXDR("base64");
   }
 
@@ -212,7 +212,7 @@ export class StakingVotesContract extends Contract {
   }): string {
     return this.call(
       "initialize",
-      ...StakingVotesContract.spec.funcArgsToScVals("initialize", {
+      ...BondingVotesContract.spec.funcArgsToScVals("initialize", {
         token: new Address(token),
         governor: new Address(governor),
         name,
@@ -228,7 +228,7 @@ export class StakingVotesContract extends Contract {
   totalSupply(): string {
     return this.call(
       "total_supply",
-      ...StakingVotesContract.spec.funcArgsToScVals("total_supply", {})
+      ...BondingVotesContract.spec.funcArgsToScVals("total_supply", {})
     ).toXDR("base64");
   }
 
@@ -240,7 +240,7 @@ export class StakingVotesContract extends Contract {
   getPastTotalSupply({ sequence }: { sequence: u32 }): string {
     return this.call(
       "get_past_total_supply",
-      ...StakingVotesContract.spec.funcArgsToScVals("get_past_total_supply", {
+      ...BondingVotesContract.spec.funcArgsToScVals("get_past_total_supply", {
         sequence,
       })
     ).toXDR("base64");
@@ -254,7 +254,7 @@ export class StakingVotesContract extends Contract {
   getVotes({ account }: { account: string }): string {
     return this.call(
       "get_votes",
-      ...StakingVotesContract.spec.funcArgsToScVals("get_votes", {
+      ...BondingVotesContract.spec.funcArgsToScVals("get_votes", {
         account: new Address(account),
       })
     ).toXDR("base64");
@@ -269,7 +269,7 @@ export class StakingVotesContract extends Contract {
   getPastVotes({ user, sequence }: { user: string; sequence: u32 }): string {
     return this.call(
       "get_past_votes",
-      ...StakingVotesContract.spec.funcArgsToScVals("get_past_votes", {
+      ...BondingVotesContract.spec.funcArgsToScVals("get_past_votes", {
         user: new Address(user),
         sequence,
       })
@@ -284,7 +284,7 @@ export class StakingVotesContract extends Contract {
   getDelegate({ account }: { account: string }): string {
     return this.call(
       "get_delegate",
-      ...StakingVotesContract.spec.funcArgsToScVals("get_delegate", {
+      ...BondingVotesContract.spec.funcArgsToScVals("get_delegate", {
         account: new Address(account),
       })
     ).toXDR("base64");
@@ -305,7 +305,7 @@ export class StakingVotesContract extends Contract {
   }): string {
     return this.call(
       "delegate",
-      ...StakingVotesContract.spec.funcArgsToScVals("delegate", {
+      ...BondingVotesContract.spec.funcArgsToScVals("delegate", {
         account: new Address(account),
         delegatee: new Address(delegatee),
       })
@@ -321,7 +321,7 @@ export class StakingVotesContract extends Contract {
   deposit({ from, amount }: { from: string; amount: i128 }): string {
     return this.call(
       "deposit",
-      ...StakingVotesContract.spec.funcArgsToScVals("deposit", {
+      ...BondingVotesContract.spec.funcArgsToScVals("deposit", {
         from: new Address(from),
         amount,
       })
@@ -337,7 +337,7 @@ export class StakingVotesContract extends Contract {
   withdraw({ from, amount }: { from: string; amount: i128 }): string {
     return this.call(
       "withdraw",
-      ...StakingVotesContract.spec.funcArgsToScVals("withdraw", {
+      ...BondingVotesContract.spec.funcArgsToScVals("withdraw", {
         from: new Address(from),
         amount,
       })
@@ -352,7 +352,7 @@ export class StakingVotesContract extends Contract {
   claim({ address }: { address: string }): string {
     return this.call(
       "claim",
-      ...StakingVotesContract.spec.funcArgsToScVals("claim", {
+      ...BondingVotesContract.spec.funcArgsToScVals("claim", {
         address: new Address(address),
       })
     ).toXDR("base64");
@@ -367,7 +367,7 @@ export class StakingVotesContract extends Contract {
   setEmis({ tokens, expiration }: { tokens: i128; expiration: u64 }): string {
     return this.call(
       "set_emis",
-      ...StakingVotesContract.spec.funcArgsToScVals("set_emis", {
+      ...BondingVotesContract.spec.funcArgsToScVals("set_emis", {
         tokens,
         expiration,
       })

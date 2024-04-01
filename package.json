@@ -1,5 +1,5 @@
 {
-    "version": "0.6.0",
+    "version": "0.6.1",
     "name": "@script3/soroban-governor-sdk",
     "description": "Javascript SDK for the Soroban Governor",
     "type": "module",
@@ -28,9 +28,8 @@
     },
     "homepage": "https://github.com/script3/soroban-governor-js-sdk#readme",
     "dependencies": {
-        "@stellar/freighter-api": "1.7.1",
         "buffer": "6.0.3",
-        "@stellar/stellar-sdk": "11.2.2"
+        "@stellar/stellar-sdk": "11.3.0"
     },
     "devDependencies": {
         "typescript": "5.3.3"

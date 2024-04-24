@@ -427,7 +427,7 @@ export class GovernorContract extends Contract {
    * Construct a vote operation
    * @param voter - The address of the voter
    * @param proposal_id - The id of the proposal
-   * @param support - The vote
+   * @param support - The vote support type (0=against, 1=for, 2=abstain)
    * @returns A base64 XDR string of the operation
    */
   vote({

@@ -1,5 +1,4 @@
-import { xdr } from "@stellar/stellar-sdk";
-import { SorobanRpc } from "@stellar/stellar-sdk";
+import { SorobanRpc, xdr } from "@stellar/stellar-sdk";
 export class ContractError extends Error {
   /**
    * The type of the error
@@ -53,6 +52,9 @@ export enum ContractErrorType {
   // Voter Token Errors
   InsufficientVotesError = 100,
   InvalidDelegateeError = 101,
+  InvalidCheckpointError = 102,
+  SequenceNotClosedError = 103,
+  InvalidEmissionConfigError = 104,
 
   // Governor Errors
   InvalidSettingsError = 200,

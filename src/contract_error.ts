@@ -59,13 +59,18 @@ export enum ContractErrorType {
   // Governor Errors
   InvalidSettingsError = 200,
   NonExistentProposalError = 201,
-  ProposalNotActiveError = 202,
+  ProposalClosedError = 202,
   InvalidProposalSupportError = 203,
   VotePeriodNotFinishedError = 204,
-  ProposalNotQueuedError = 205,
+  ProposalNotExecutableError = 205,
   TimelockNotMetError = 206,
-  CancelActiveProposalError = 207,
+  ProposalVotePeriodStartedError = 207,
   InsufficientVotingUnitsError = 208,
+  AlreadyVotedError = 209,
+  InvalidProposalType = 210,
+  ProposalAlreadyOpenError = 211,
+  OutsideOfVotePeriodError = 212,
+  InvalidProposalActionError = 213,
 }
 
 export function parseError(

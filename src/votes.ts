@@ -1,4 +1,4 @@
-import { Address, Contract, ContractSpec } from "@stellar/stellar-sdk";
+import { Address, Contract, contract } from "@stellar/stellar-sdk";
 import type { i128, u32, u64 } from "./index.js";
 
 /**
@@ -83,7 +83,7 @@ export class VotesContract extends Contract {
   /**
    * ContractSpec for the Votes spec
    */
-  static readonly votes_spec = new ContractSpec([
+  static readonly votes_spec = new contract.Spec([
     "AAAAAAAAAAAAAAAMdG90YWxfc3VwcGx5AAAAAAAAAAEAAAAL",
     "AAAAAAAAAAAAAAARc2V0X3ZvdGVfc2VxdWVuY2UAAAAAAAABAAAAAAAAAAhzZXF1ZW5jZQAAAAQAAAAA",
     "AAAAAAAAAAAAAAAVZ2V0X3Bhc3RfdG90YWxfc3VwcGx5AAAAAAAAAQAAAAAAAAAIc2VxdWVuY2UAAAAEAAAAAQAAAAs=",
@@ -208,7 +208,7 @@ export class VotesContract extends Contract {
  * in exchange for a non-transferable voting token that implements the Votes trait.
  */
 export class BondingVotesContract extends VotesContract {
-  static readonly spec = new ContractSpec([
+  static readonly spec = new contract.Spec([
     "AAAAAAAAAAAAAAAKaW5pdGlhbGl6ZQAAAAAABAAAAAAAAAAFdG9rZW4AAAAAAAATAAAAAAAAAAhnb3Zlcm5vcgAAABMAAAAAAAAABG5hbWUAAAAQAAAAAAAAAAZzeW1ib2wAAAAAABAAAAAA",
     "AAAAAAAAAAAAAAAHZGVwb3NpdAAAAAACAAAAAAAAAARmcm9tAAAAEwAAAAAAAAAGYW1vdW50AAAAAAALAAAAAA==",
     "AAAAAAAAAAAAAAAId2l0aGRyYXcAAAACAAAAAAAAAARmcm9tAAAAEwAAAAAAAAAGYW1vdW50AAAAAAALAAAAAA==",
@@ -391,7 +391,7 @@ export class BondingVotesContract extends VotesContract {
  * that implement the Votes trait.
  */
 export class TokenVotesContract extends VotesContract {
-  static readonly spec = new ContractSpec([
+  static readonly spec = new contract.Spec([
     "AAAAAAAAAAAAAAAJYWxsb3dhbmNlAAAAAAAAAgAAAAAAAAAEZnJvbQAAABMAAAAAAAAAB3NwZW5kZXIAAAAAEwAAAAEAAAAL",
     "AAAAAAAAAAAAAAAHYXBwcm92ZQAAAAAEAAAAAAAAAARmcm9tAAAAEwAAAAAAAAAHc3BlbmRlcgAAAAATAAAAAAAAAAZhbW91bnQAAAAAAAsAAAAAAAAAEWV4cGlyYXRpb25fbGVkZ2VyAAAAAAAABAAAAAA=",
     "AAAAAAAAAAAAAAAHYmFsYW5jZQAAAAABAAAAAAAAAAJpZAAAAAAAEwAAAAEAAAAL",
@@ -707,7 +707,7 @@ export class TokenVotesContract extends VotesContract {
  * that implement the Votes trait.
  */
 export class AdminVotesContract extends VotesContract {
-  static readonly spec = new ContractSpec([
+  static readonly spec = new contract.Spec([
     "AAAAAAAAAAAAAAAKaW5pdGlhbGl6ZQAAAAAABQAAAAAAAAAFYWRtaW4AAAAAAAATAAAAAAAAAAhnb3Zlcm5vcgAAABMAAAAAAAAAB2RlY2ltYWwAAAAABAAAAAAAAAAEbmFtZQAAABAAAAAAAAAABnN5bWJvbAAAAAAAEAAAAAA=",
     "AAAAAAAAAAAAAAAEbWludAAAAAIAAAAAAAAAAnRvAAAAAAATAAAAAAAAAAZhbW91bnQAAAAAAAsAAAAA",
     "AAAAAAAAAAAAAAAIY2xhd2JhY2sAAAACAAAAAAAAAARmcm9tAAAAEwAAAAAAAAAGYW1vdW50AAAAAAALAAAAAA==",

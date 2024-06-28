@@ -1,11 +1,6 @@
-import {
-  Address,
-  Contract,
-  contract,
-  nativeToScVal,
-  xdr,
-} from "@stellar/stellar-sdk";
+import { Address, Contract, contract } from "@stellar/stellar-sdk";
 import { Buffer } from "buffer";
+import { convertValsToScVals } from "./calldata_utils.js";
 import type { Option, i128, u32 } from "./index.js";
 
 /**
@@ -95,54 +90,65 @@ export interface GovernorSettings {
 
 /**
  * This is a wrapper for the XDR type ScVal. It is used to convert between
- * a string based representation of the value and the internal XDR type.
+ * a JS based representation of to the ScVal type used in Soroban.
  *
  * See the Stellar SDK's [nativeToScVal](https://stellar.github.io/js-stellar-sdk/ContractSpec.html#nativeToScVal) implementation
  * for more information.
+ *
+ * @param value - The value to convert to an ScVal
+ * @param type - An object containing a type property that is the ScVal representation.
+ * @returns The ScVal representation of the value
+ *
+ * @example
+ * - i32 ScVal with value 10
+ * ```js
+ * {
+ *  value: 10,
+ *  type: {
+ *   type: "i32"
+ *  }
+ * }
+ * ```
+ *
+ * - Address ScVal with the zero address
+ * ```js
+ * {
+ *  value: "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF",
+ *  type: {
+ *    type: "Address"
+ *  }
+ * }
+ * ```
+ *
+ * - Complex ScVal encoded as XDR. (This is an example of `GovernorSettings` as an ScVal)
+ * ```js
+ * {
+ *  value: "AAAAEQAAAAEAAAAIAAAADwAAAA1jb3VudGluZ190eXBlAAAAAAAAAwAAAAYAAAAPAAAADGdyYWNlX3BlcmlvZAAAAAMAAdiAAAAADwAAABJwcm9wb3NhbF90aHJlc2hvbGQAAAAAAAoAAAAAAAAAAAAAAAJUC+QAAAAADwAAAAZxdW9ydW0AAAAAAAMAAAH0AAAADwAAAAh0aW1lbG9jawAAAAMAAIcAAAAADwAAAAp2b3RlX2RlbGF5AAAAAAADAACHAAAAAA8AAAALdm90ZV9wZXJpb2QAAAAAAwAAyoAAAAAPAAAADnZvdGVfdGhyZXNob2xkAAAAAAADAAAT7A=="
+ *  type: {
+ *    type: "xdr"
+ *  }
+ * }
+ * ```
  */
-export class Val {
-  value: string;
+export interface Val {
+  value: any;
   type: any;
-
-  constructor(value: string, type: any) {
-    this.value = value;
-    this.type = type;
-  }
-
-  toScVal(): xdr.ScVal {
-    return nativeToScVal(this.value, this.type);
-  }
 }
 
 /**
- * Object for storing call data
+ * Calldata for a proposal action. Defines a contract action the Governor will take
+ * when the proposal is executed.
+ *
+ * @param args - The arguments for the contract invocation
+ * @param auths - The authorizations required by the governor for the contract invocation
+ * @param contract_id - The contract ID of the contract to invoke
+ * @param function - The function to invoke on the contract
  */
-export class Calldata {
+export interface Calldata {
   args: Array<Val>;
   auths: Array<Calldata>;
   contract_id: string;
   function: string;
-
-  constructor(
-    contract_id: string,
-    function_: string,
-    args: Array<Val>,
-    auths: Array<Calldata>
-  ) {
-    this.args = args;
-    this.auths = auths;
-    this.contract_id = contract_id;
-    this.function = function_;
-  }
-
-  convertValsToScVals(): any {
-    return {
-      args: this.args.map((arg) => arg.toScVal()),
-      auths: this.auths.map((auth) => auth.convertValsToScVals()),
-      contract_id: new Address(this.contract_id),
-      function: this.function,
-    };
-  }
 }
 
 /**
@@ -382,7 +388,7 @@ export class GovernorContract extends Contract {
     action: ProposalAction;
   }): string {
     if (action.tag === "Calldata") {
-      let new_value = action.values[0].convertValsToScVals();
+      let new_value = convertValsToScVals(action.values[0]);
       action = { tag: "Calldata", values: [new_value] };
     }
     return this.call(

@@ -11,7 +11,7 @@ import { Calldata, Val } from ".";
 export function convertValsToScVals(calldata: Calldata): any {
   return {
     args: calldata.args.map((arg) => valToScVal(arg)),
-    auths: calldata.auths.map((auth) => convertValsToScVals(calldata)),
+    auths: calldata.auths.map((auth) => convertValsToScVals(auth)),
     contract_id: new Address(calldata.contract_id),
     function: calldata.function,
   };

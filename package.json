@@ -1,5 +1,5 @@
 {
-    "version": "1.2.0",
+    "version": "1.2.1",
     "name": "@script3/soroban-governor-sdk",
     "description": "Javascript SDK for the Soroban Governor",
     "type": "module",

@@ -9,8 +9,8 @@ Now that you have your library up-to-date and added to your project, you can imp
 ```js
 import { VotesClient } from "soroban-governor-js-sdk";
 
-let rpc = new SorobanRpc.Server("rpcUrl");
-let account = await rpc.getAccount("public key");
+let stellarRpc = new rpc.Server("rpcUrl");
+let account = await stellarRpc.getAccount("public key");
 let votes = new VotesClient("Contract Address");
 
 let { op, parser } = votes.depositFor({
@@ -28,7 +28,7 @@ let tx = new TransactionBuilder(account, {
   .build();
 
 // Simulate
-let sim_resp = await rpc.simulateTransaction(tx);
+let sim_resp = await stellarRpc.simulateTransaction(tx);
 
 // Parse Response
 let result = ContractResult.fromSimulationResponse(sim_resp, parser);

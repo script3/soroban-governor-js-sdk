@@ -1,7 +1,6 @@
 export * from "./calldata_utils.js";
-export * from "./contract_error.js";
-export * from "./contract_result.js";
 export * from "./governor.js";
+export * from "./response_parser.js";
 export * from "./votes.js";
 export type u32 = number;
 export type i32 = number;

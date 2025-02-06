@@ -1,5 +1,10 @@
-import { Address, nativeToScVal, xdr } from "@stellar/stellar-sdk";
-import { Calldata, Val } from ".";
+import {
+  Address,
+  nativeToScVal,
+  scValToNative,
+  xdr,
+} from "@stellar/stellar-sdk";
+import { Calldata, ScValType, Val } from ".";
 
 /**
  * Convert Calldata "Vals" to ScVals. This is required for the calldata to be used in the smart contract.
@@ -54,8 +59,42 @@ export function calldataToAuthInvocation(
   let subInvocations = calldata.auths.map((auth) =>
     calldataToAuthInvocation(auth)
   );
+
   return new xdr.SorobanAuthorizedInvocation({
     function: auth_function,
     subInvocations: subInvocations,
   });
+}
+
+export function authInvocationToCalldata(
+  authInvocation: xdr.SorobanAuthorizedInvocation | string
+): Calldata {
+  if (typeof authInvocation === "string") {
+    authInvocation = xdr.SorobanAuthorizedInvocation.fromXDR(
+      authInvocation,
+      "base64"
+    );
+  }
+  let functionName = authInvocation
+    .function()
+    .contractFn()
+    .functionName()
+    .toString();
+  let contractId = Address.fromScAddress(
+    authInvocation.function().contractFn().contractAddress()
+  ).toString();
+  let args = authInvocation.function().contractFn().args();
+  let subInvocations = authInvocation.subInvocations();
+
+  return {
+    function: functionName,
+    contract_id: contractId,
+    args: args.map((arg) => {
+      return {
+        value: scValToNative(arg).toString(),
+        type: { type: ScValType[arg.switch().value] },
+      } as Val;
+    }),
+    auths: subInvocations.map((sub) => authInvocationToCalldata(sub)),
+  };
 }

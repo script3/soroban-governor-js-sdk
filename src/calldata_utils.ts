@@ -4,7 +4,7 @@ import {
   scValToNative,
   xdr,
 } from "@stellar/stellar-sdk";
-import { Calldata, ScValType, Val } from ".";
+import { Calldata, ScValType, Val } from "./index.js";
 
 /**
  * Convert Calldata "Vals" to ScVals. This is required for the calldata to be used in the smart contract.

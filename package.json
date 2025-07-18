@@ -1,5 +1,5 @@
 {
-  "version": "1.3.2",
+  "version": "1.4.0-beta",
   "name": "@script3/soroban-governor-sdk",
   "description": "Javascript SDK for the Soroban Governor",
   "type": "module",
@@ -17,7 +17,8 @@
     "/dist"
   ],
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "tag": "beta"
   },
   "repository": {
     "type": "git",
@@ -29,7 +30,7 @@
   "homepage": "https://github.com/script3/soroban-governor-js-sdk#readme",
   "dependencies": {
     "buffer": "6.0.3",
-    "@stellar/stellar-sdk": "13.1.0"
+    "@stellar/stellar-sdk": "14.0.0-rc.3"
   },
   "devDependencies": {
     "typescript": "5.3.3"
